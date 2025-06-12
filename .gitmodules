@@ -1,3 +1,3 @@
-[submodule "pc/sysmodule"]
-	path = pc/sysmodule
+[submodule "sysmodule"]
+	path = sysmodule
 	url = https://github.com/bedrockreal/Scriptease-sysmodule
