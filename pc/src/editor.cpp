@@ -50,6 +50,7 @@ namespace tas
                     {
                         ImGui::TableSetupColumn(tas::editor::head[j], ImGuiTableColumnFlags_None, strlen(tas::editor::head[j]) * (j >= 1 && j <= 2 ? 20 : 10));
                     }
+                    ImGui::TableSetupScrollFreeze(0, 1);
                     ImGui::TableHeadersRow();
 
                     for (int i = 0; i < tas::script::loadedInputSeq.size(); ++i)
