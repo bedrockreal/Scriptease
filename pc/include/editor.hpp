@@ -9,7 +9,7 @@ namespace tas
     {
         extern const int NUM_OF_COLS;
         extern const char* const head[];
-        extern std::string loadedFileName;
+        extern std::string editorFileName;
 
         void mainLoop();
         void saveFile(std::string filename = "");

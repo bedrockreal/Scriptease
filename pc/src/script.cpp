@@ -122,7 +122,24 @@ namespace tas
             {"DDOWN", 1 << 15}
         };
 
-        std::vector<frameInputMsg> loadedInputSeq;
+        std::vector<frameInputMsg> editorInputSeq;
+        std::vector<frameInputMsg> tmpInputSeq;
+        int frameToRun = 0;
+
+        void mainLoop()
+        {
+            if (!tmpInputSeq.empty())
+            {
+                transmit::sendCommand(tmpInputSeq[frameToRun++].getSysStr());
+                transmit::sendCommand("advance");
+                if (frameToRun == tmpInputSeq.size())
+                {
+                    // end, reset
+                    tmpInputSeq.clear();
+                    frameToRun = 0;
+                }
+            }
+        }
 
 
         void loadFromFile(std::string filename, std::vector<frameInputMsg>& tar)
@@ -140,7 +157,7 @@ namespace tas
                 {
                     tas::script::frameInputMsg msg;
                     int cur_frame = msg.loadNxTasStr(line);
-                    appendLines(loadedInputSeq, cur_frame - loadedInputSeq.size());
+                    appendLines(editorInputSeq, cur_frame - editorInputSeq.size());
                     tar.push_back(msg);
                 }
             }
@@ -194,13 +211,14 @@ namespace tas
 
         void run(std::vector<frameInputMsg>& m_inputSeq)
         {
-            for (int i = 0; i < m_inputSeq.size(); ++i)
-            {
-                transmit::sendCommand(m_inputSeq[i].getSysStr());
-                transmit::sendCommand("advance");
-            }
-            // reset
-            transmit::sendCommand("resetControllerState");
+            tmpInputSeq = m_inputSeq;
+            // for (int i = 0; i < m_inputSeq.size(); ++i)
+            // {
+            //     transmit::sendCommand(m_inputSeq[i].getSysStr());
+            //     transmit::sendCommand("advance");
+            // }
+            // // reset
+            // transmit::sendCommand("resetControllerState");
         }
 
         void runFile(std::string filename)

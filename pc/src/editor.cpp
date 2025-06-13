@@ -34,17 +34,17 @@ namespace tas
             ">\0",
             "v\0"
         };
-        std::string loadedFileName = "";
+        std::string editorFileName = "";
 
         void mainLoop()
         {
             ImGui::SetNextWindowSize(sf::Vector2u(CONSOLE_WINDOW_POS.x - EDITOR_WINDOW_POS.x, MASTER_WINDOW_SIZE.y - EDITOR_WINDOW_POS.y));
             ImGui::SetNextWindowPos(EDITOR_WINDOW_POS);
             char title[64];
-            sprintf(title, "TAS Editor: %s", loadedFileName.empty() ? "Untitled" : loadedFileName.c_str());
+            sprintf(title, "TAS Editor: %s", editorFileName.empty() ? "Untitled" : editorFileName.c_str());
             if (ImGui::Begin(title, &windowOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
             {
-                if (ImGui::BeginTable("table", tas::editor::NUM_OF_COLS, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_SizingFixedFit))
+                if (ImGui::BeginTable("table", tas::editor::NUM_OF_COLS, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollY))
                 {
                     for (int j = 0; j < tas::editor::NUM_OF_COLS; ++j)
                     {
@@ -53,27 +53,27 @@ namespace tas
                     ImGui::TableSetupScrollFreeze(0, 1);
                     ImGui::TableHeadersRow();
 
-                    for (int i = 0; i < tas::script::loadedInputSeq.size(); ++i)
+                    for (int i = 0; i < tas::script::editorInputSeq.size(); ++i)
                     {
                         char label[32];
                         sprintf(label, "%d", i);
                         ImGui::TableNextRow();
                         ImGui::TableNextColumn();
-                        if (ImGui::Selectable(label, script::loadedInputSeq[i].isSelected))
+                        if (ImGui::Selectable(label, script::editorInputSeq[i].isSelected))
                         {
                             if (!(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RControl)))
                             {
-                                for (int j = 0; j < tas::script::loadedInputSeq.size(); ++j) script::loadedInputSeq[j].isSelected = 0;
+                                for (int j = 0; j < tas::script::editorInputSeq.size(); ++j) script::editorInputSeq[j].isSelected = 0;
                             }
-                            script::loadedInputSeq[i].isSelected ^= 1;
+                            script::editorInputSeq[i].isSelected ^= 1;
                         }
                         
-                        sprintf(label, "##%dL", i); ImGui::TableNextColumn(); ImGui::InputInt2(label, tas::script::loadedInputSeq[i].joyL);
-                        sprintf(label, "##%dR", i); ImGui::TableNextColumn(); ImGui::InputInt2(label, tas::script::loadedInputSeq[i].joyR);
+                        sprintf(label, "##%dL", i); ImGui::TableNextColumn(); ImGui::InputInt2(label, tas::script::editorInputSeq[i].joyL);
+                        sprintf(label, "##%dR", i); ImGui::TableNextColumn(); ImGui::InputInt2(label, tas::script::editorInputSeq[i].joyR);
                         for (int j = 0; j < tas::editor::NUM_OF_COLS - 3; ++j)
                         {
                             sprintf(label, "##%d;%d", i, j);
-                            ImGui::TableNextColumn(); ImGui::Checkbox(label, &tas::script::loadedInputSeq[i].isPressed[j]);
+                            ImGui::TableNextColumn(); ImGui::Checkbox(label, &tas::script::editorInputSeq[i].isPressed[j]);
                         }
                     }
                     ImGui::EndTable();
@@ -83,7 +83,7 @@ namespace tas
 
         void saveFile(std::string filename)
         {
-            if (tas::script::loadedInputSeq.empty())
+            if (tas::script::editorInputSeq.empty())
             {
                 // Show msg
                 return;
@@ -96,12 +96,12 @@ namespace tas
             else
             {
                 std::ofstream file((std::string("scripts/") + std::string(filename).c_str()));
-                for (int i = 0; i < tas::script::loadedInputSeq.size(); ++i) if (!tas::script::loadedInputSeq[i].isIdle())
+                for (int i = 0; i < tas::script::editorInputSeq.size(); ++i) if (!tas::script::editorInputSeq[i].isIdle())
                 {
-                    std::string line = std::to_string(i) + " " + tas::script::loadedInputSeq[i].getNxTasStr() + "\n";
+                    std::string line = std::to_string(i) + " " + tas::script::editorInputSeq[i].getNxTasStr() + "\n";
                     file.write(line.c_str(), line.length());
                 }
-                loadedFileName = filename;
+                editorFileName = filename;
             }
         }
 
@@ -114,8 +114,8 @@ namespace tas
             }
             else
             {
-                script::loadFromFile(filename, script::loadedInputSeq);
-                loadedFileName = filename;
+                script::loadFromFile(filename, script::editorInputSeq);
+                editorFileName = filename;
             }
         }
     } // namespace editor

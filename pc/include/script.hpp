@@ -26,7 +26,10 @@ namespace tas
 
         extern const char* const proper[16];
         extern const std::unordered_map<std::string, int> translate_keys;
-        extern std::vector<frameInputMsg> loadedInputSeq;
+        extern std::vector<frameInputMsg> editorInputSeq;
+        extern std::vector<frameInputMsg> tmpInputSeq;
+        extern int frameToRun;
+        void mainLoop();
         void loadFromFile(std::string filename, std::vector<frameInputMsg>& tar);
         void appendLines(std::vector<frameInputMsg>& cur, int cnt = 1);
         void insertLines(std::vector<frameInputMsg>& cur);

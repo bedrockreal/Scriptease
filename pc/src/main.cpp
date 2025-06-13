@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
                         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RControl))
                         {
                             // ctrl T add line
-                            tas::script::appendLines(tas::script::loadedInputSeq);
+                            tas::script::appendLines(tas::script::editorInputSeq);
                         }
                         break;
                     }
@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
                         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RControl))
                         {
                             // ctrl I insert line
-                            tas::script::insertLines(tas::script::loadedInputSeq);
+                            tas::script::insertLines(tas::script::editorInputSeq);
                         }
                         break;
                     }
@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
                         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RControl))
                         {
                             // ctrl D duplicate line
-                            tas::script::duplicateLines(tas::script::loadedInputSeq);
+                            tas::script::duplicateLines(tas::script::editorInputSeq);
                         }
                         break;
                     }
@@ -150,12 +150,12 @@ int main(int argc, char* argv[])
                     }
                     case sf::Keyboard::Scancode::Delete:
                     {
-                        tas::script::deleteLines(tas::script::loadedInputSeq);
+                        tas::script::deleteLines(tas::script::editorInputSeq);
                     }
                     case sf::Keyboard::Scancode::F9:
                     {
                         // F9 run current
-                        tas::script::run(tas::script::loadedInputSeq);
+                        tas::script::run(tas::script::editorInputSeq);
                         break;
                     }
                     case sf::Keyboard::Scancode::F10:
@@ -178,6 +178,7 @@ int main(int argc, char* argv[])
         tas::control::mainLoop();
         tas::console::mainLoop();
         tas::editor::mainLoop();
+        tas::script::mainLoop();
         tas::popup::mainLoop();
 
         window.clear();

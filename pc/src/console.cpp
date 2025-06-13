@@ -59,7 +59,7 @@ namespace tas
                 }
                 else if (argv[0] == "run")
                 {
-                    if (argv[1] == "current") script::run(script::loadedInputSeq);
+                    if (argv[1] == "current") script::run(script::editorInputSeq);
                     else script::runFile(argv[1]);
                 }
                 
