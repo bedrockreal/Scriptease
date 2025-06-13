@@ -18,6 +18,7 @@
 #include "console.hpp"
 #include "common.hpp"
 #include "script.hpp"
+#include "popup.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -163,49 +164,7 @@ int main(int argc, char* argv[])
         tas::control::mainLoop();
         tas::console::mainLoop();
         tas::editor::mainLoop();
-
-        // pop-ups
-        if (tas::showOpenFileWindow_Flag)
-        {
-            if (ImGui::Begin("Open File"))
-            {
-                char buf[64] = {0};
-                if (ImGui::InputText("Enter File Name", buf, 64, ImGuiInputTextFlags_EnterReturnsTrue))
-                {
-                    tas::showOpenFileWindow_Flag = false;
-                    tas::editor::openFile(buf);
-                }
-                ImGui::End();
-            }
-        }
-
-        if (tas::showSaveFileWindow_Flag)
-        {
-            if (ImGui::Begin("Save File"))
-            {
-                char buf[64] = {0};
-                if (ImGui::InputText("Enter File Name", buf, 64, ImGuiInputTextFlags_EnterReturnsTrue))
-                {
-                    tas::showSaveFileWindow_Flag = false;
-                    tas::editor::saveFile(buf);
-                }
-                ImGui::End();
-            }
-        }
-
-        if (tas::showRunFileWindow_Flag)
-        {
-            if (ImGui::Begin("Run File"))
-            {
-                char buf[64] = {0};
-                if (ImGui::InputText("Enter File Name", buf, 64, ImGuiInputTextFlags_EnterReturnsTrue))
-                {
-                    tas::showRunFileWindow_Flag = false;
-                    tas::script::runFile(buf);
-                }
-                ImGui::End();
-            }
-        }
+        tas::popup::mainLoop();
 
         window.clear();
         ImGui::SFML::Render(window);

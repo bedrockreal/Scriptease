@@ -3,6 +3,7 @@
 #include "transmit.hpp"
 #include "common.hpp"
 #include "editor.hpp"
+#include "script.hpp"
 
 #include "imgui.h"
 
@@ -13,6 +14,7 @@ namespace tas
 {
     namespace console
     {
+        bool focusHere = false;
         char input[64] = {0};
         std::deque<std::string> log_items;
         void log(std::string str)
@@ -31,57 +33,45 @@ namespace tas
                     while (log_items.size() > MAX_LOG_ENTRIES) log_items.pop_front();
                     for (auto cur : log_items) ImGui::Text(cur.c_str());
                 } ImGui::EndChild();
+                if (focusHere) ImGui::SetKeyboardFocusHere();
                 if (ImGui::InputText("input", input, IM_ARRAYSIZE(input), ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_EscapeClearsAll))
                 {
+                    focusHere = true;
                     parse(input);
                     input[0] = '\0';
                 }
+                else focusHere = false;
             } ImGui::End();
         }
 
         void parse(std::string str)
         {
-            // int prev_frame = 0;
-            auto argv = tokenize(str, ' ');
-            // if (argv[0][0] >= '0' && argv[0][0] <= '9')
-            // {
-            //     // first arg is int, nx-TAS format
-            //     tas::script::frameInputMsg cur(str);
-            //     transmit::sendCommand(("advance " + std::to_string(cur.frame - prev_frame)).c_str());
-            //     parse(cur);
-            //     transmit::sendCommand("advance"); // advance one frame
-
-            //     // reset
-            //     transmit::sendCommand("resetControllerState");
-            //     prev_frame = cur.frame + 1;
-            // }
-            // else
-            // {
+            try
+            {
+                auto argv = tokenize(str, ' ');
                 if (argv[0] == "load")
                 {
                     editor::openFile(argv[1].c_str());
                 }
                 else if (argv[0] == "sleep")
                 {
-                    try
-                    {
-                        usleep(std::stof(argv[1]) * 1000);
-                    }
-                    catch(const std::exception& e)
-                    {
-                        std::cerr << e.what() << '\n';
-                    }
+                    usleep(std::stof(argv[1]) * 1000);
                 }
                 else if (argv[0] == "run")
                 {
-                    /* code */
+                    if (argv[1] == "current") script::run(script::loadedInputSeq);
+                    else script::runFile(argv[1]);
                 }
                 
                 else
                 {
                     transmit::sendCommand(str);
                 }
-            // }
+            }
+            catch(const std::exception& e)
+            {
+                std::cerr << e.what() << '\n';
+            }
         }
     } // namespace console
     

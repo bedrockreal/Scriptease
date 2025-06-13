@@ -8,6 +8,7 @@ namespace tas
 {
     namespace console
     {
+        extern bool focusHere;
         extern char input[64];
         extern std::deque<std::string> log_items;
         void mainLoop();

@@ -34,12 +34,15 @@ namespace tas
             ">\0",
             "v\0"
         };
+        std::string loadedFileName = "";
 
         void mainLoop()
         {
             ImGui::SetNextWindowSize(sf::Vector2u(CONSOLE_WINDOW_POS.x - EDITOR_WINDOW_POS.x, MASTER_WINDOW_SIZE.y - EDITOR_WINDOW_POS.y));
             ImGui::SetNextWindowPos(EDITOR_WINDOW_POS);
-            if (ImGui::Begin("TAS Editor", &windowOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
+            char title[64];
+            sprintf(title, "TAS Editor: %s", loadedFileName.empty() ? "Untitled" : loadedFileName.c_str());
+            if (ImGui::Begin(title, &windowOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
             {
                 if (ImGui::BeginTable("table", tas::editor::NUM_OF_COLS, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_SizingFixedFit))
                 {
@@ -97,6 +100,7 @@ namespace tas
                     std::string line = std::to_string(i) + " " + tas::script::loadedInputSeq[i].getNxTasStr() + "\n";
                     file.write(line.c_str(), line.length());
                 }
+                loadedFileName = filename;
             }
         }
 
@@ -110,6 +114,7 @@ namespace tas
             else
             {
                 script::loadFromFile(filename, script::loadedInputSeq);
+                loadedFileName = filename;
             }
         }
     } // namespace editor

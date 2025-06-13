@@ -9,6 +9,7 @@ namespace tas
     {
         extern const int NUM_OF_COLS;
         extern const char* const head[];
+        extern std::string loadedFileName;
 
         void mainLoop();
         void saveFile(std::string filename = "");
