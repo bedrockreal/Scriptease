@@ -78,6 +78,23 @@ int main(int argc, char* argv[])
                         }
                         break;
                     }
+                    case sf::Keyboard::Scancode::C:
+                    {
+                        if (
+                            (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RControl))
+                            || (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LShift) || sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RShift))
+                        )
+                        {
+                            // ctrl shift C cancel
+                            tas::script::frameToRun = tas::script::frameToRun;
+                        }
+                        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LAlt) || sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RAlt))
+                        {
+                            // Alt C connect
+                            tas::transmit::setUpConnection("192.168.86.211", 6000);
+                        }
+                        break;
+                    }
                     case sf::Keyboard::Scancode::Z:
                     {
                         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RControl))
@@ -136,15 +153,6 @@ int main(int argc, char* argv[])
                         {
                             // ctrl D duplicate line
                             tas::script::duplicateLines(tas::script::editorInputSeq);
-                        }
-                        break;
-                    }
-                    case sf::Keyboard::Scancode::C:
-                    {
-                        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LAlt) || sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RAlt))
-                        {
-                            // Alt C connect
-                            tas::transmit::setUpConnection("192.168.86.211", 6000);
                         }
                         break;
                     }

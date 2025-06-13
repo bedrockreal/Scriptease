@@ -77,6 +77,10 @@ namespace tas
                     {
                         tas::script::runFile();
                     }
+                    if (ImGui::MenuItem("Cancel Run", "Ctrl+Shift+C"))
+                    {
+                        script::frameToRun = script::frameToRun;
+                    }
                     ImGui::EndMenu();
                 }
                 ImGui::EndMainMenuBar();

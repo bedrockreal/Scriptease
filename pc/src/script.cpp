@@ -123,19 +123,19 @@ namespace tas
         };
 
         std::vector<frameInputMsg> editorInputSeq;
-        std::vector<frameInputMsg> tmpInputSeq;
+        std::vector<frameInputMsg> runInputSeq;
         int frameToRun = 0;
 
         void mainLoop()
         {
-            if (!tmpInputSeq.empty())
+            if (!runInputSeq.empty())
             {
-                transmit::sendCommand(tmpInputSeq[frameToRun++].getSysStr());
+                transmit::sendCommand(runInputSeq[frameToRun++].getSysStr());
                 transmit::sendCommand("advance");
-                if (frameToRun == tmpInputSeq.size())
+                if (frameToRun == runInputSeq.size())
                 {
                     // end, reset
-                    tmpInputSeq.clear();
+                    runInputSeq.clear();
                     frameToRun = 0;
                 }
             }
@@ -211,7 +211,8 @@ namespace tas
 
         void run(std::vector<frameInputMsg>& m_inputSeq)
         {
-            tmpInputSeq = m_inputSeq;
+            runInputSeq = m_inputSeq;
+            frameToRun = 0;
             // for (int i = 0; i < m_inputSeq.size(); ++i)
             // {
             //     transmit::sendCommand(m_inputSeq[i].getSysStr());
