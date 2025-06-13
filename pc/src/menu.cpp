@@ -53,7 +53,7 @@ namespace tas
                 }
                 if (ImGui::BeginMenu("Options"))
                 {
-                    if (ImGui::MenuItem("Connect"))
+                    if (ImGui::MenuItem("Connect", "Alt+C"))
                     {
                         transmit::setUpConnection("192.168.86.211", 6000);
                     }

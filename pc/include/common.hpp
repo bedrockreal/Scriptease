@@ -21,6 +21,7 @@ namespace tas
     extern bool showOpenFileWindow_Flag;
     extern bool showRunFileWindow_Flag;
     std::vector<std::string> tokenize(std::string input, char delim);
+    void clearFlags();
 } // namespace tas
 
 #endif

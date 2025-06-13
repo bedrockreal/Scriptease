@@ -14,4 +14,11 @@ namespace tas
         while (std::getline(ss, cur, delim)) res.push_back(cur);
         return res;
     }
+
+    void clearFlags()
+    {
+        showOpenFileWindow_Flag = 0;
+        showSaveFileWindow_Flag = 0;
+        showRunFileWindow_Flag = 0;
+    }
 } // namespace tas

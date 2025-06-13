@@ -139,6 +139,15 @@ int main(int argc, char* argv[])
                         }
                         break;
                     }
+                    case sf::Keyboard::Scancode::C:
+                    {
+                        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LAlt) || sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RAlt))
+                        {
+                            // Alt C connect
+                            tas::transmit::setUpConnection("192.168.86.211", 6000);
+                        }
+                        break;
+                    }
                     case sf::Keyboard::Scancode::Delete:
                     {
                         tas::script::deleteLines(tas::script::loadedInputSeq);
@@ -154,6 +163,11 @@ int main(int argc, char* argv[])
                         // F10 run file
                         tas::script::runFile();
                         break;
+                    }
+                    case sf::Keyboard::Scancode::Escape:
+                    {
+                        // Esc clear popup windows
+                        tas::clearFlags();
                     }
                 }
             }
