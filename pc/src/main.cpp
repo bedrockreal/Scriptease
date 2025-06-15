@@ -159,6 +159,7 @@ int main(int argc, char* argv[])
                     case sf::Keyboard::Scancode::Delete:
                     {
                         tas::script::deleteLines(tas::script::editorInputSeq);
+                        break;
                     }
                     case sf::Keyboard::Scancode::F9:
                     {
