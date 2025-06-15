@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
                         )
                         {
                             // ctrl shift C cancel
-                            tas::script::frameToRun = tas::script::frameToRun;
+                            tas::script::frameToRun = tas::script::runInputSeq.size();
                         }
                         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LAlt) || sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RAlt))
                         {

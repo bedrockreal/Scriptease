@@ -2,6 +2,7 @@
 #include "common.hpp"
 #include "transmit.hpp"
 #include "menu.hpp"
+#include "console.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -128,15 +129,26 @@ namespace tas
 
         void mainLoop()
         {
+            assert(frameToRun >= 0);
+            std::cout << runInputSeq.size() << std::endl;
             if (!runInputSeq.empty())
             {
-                transmit::sendCommand(runInputSeq[frameToRun++].getSysStr());
-                transmit::sendCommand("advance");
-                if (frameToRun == runInputSeq.size())
+                if (frameToRun >= runInputSeq.size())
                 {
                     // end, reset
                     runInputSeq.clear();
                     frameToRun = 0;
+                    transmit::sendCommand("resetControllerState");
+                }
+                else
+                {
+                    console::log("running frame " + std::to_string(frameToRun));
+                    while (!console::log_items.empty() && console::log_items.back() == "#adv") console::log_items.pop_back();
+                    int prevSize = console::log_items.size();
+                    transmit::sendCommand(runInputSeq[frameToRun++].getSysStr());
+                    transmit::sendCommand("advance");
+                    while (console::log_items.size() == prevSize || console::log_items.back() != "#adv"); // wait
+                    console::log_items.pop_back();
                 }
             }
         }
@@ -213,13 +225,6 @@ namespace tas
         {
             runInputSeq = m_inputSeq;
             frameToRun = 0;
-            // for (int i = 0; i < m_inputSeq.size(); ++i)
-            // {
-            //     transmit::sendCommand(m_inputSeq[i].getSysStr());
-            //     transmit::sendCommand("advance");
-            // }
-            // // reset
-            // transmit::sendCommand("resetControllerState");
         }
 
         void runFile(std::string filename)
