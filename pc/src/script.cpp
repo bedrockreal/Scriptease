@@ -3,6 +3,7 @@
 #include "transmit.hpp"
 #include "menu.hpp"
 #include "console.hpp"
+#include "editor.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -17,14 +18,12 @@ namespace tas
             joyL[0] = joyL[1] = 0;
             joyR[0] = joyR[1] = 0;
             std::fill(isPressed, isPressed + 16, 0);
-            isSelected = 0;
         }
 
         
         int frameInputMsg::loadNxTasStr(std::string str)
         {
             std::fill(isPressed, isPressed + 16, 0);
-            isSelected = 0;
             auto argv = tas::tokenize(str, ' ');
             try
             {
@@ -50,6 +49,15 @@ namespace tas
             return 0;
         }
         frameInputMsg::~frameInputMsg() {}
+
+        frameInputMsg frameInputMsg::clone()
+        {
+            auto ret = frameInputMsg();
+            memcpy(ret.joyL, joyL, sizeof joyL);
+            memcpy(ret.joyR, joyR, sizeof joyR);
+            memcpy(ret.isPressed, isPressed, sizeof isPressed);
+            return ret;
+        }
 
         std::string frameInputMsg::getNxTasStr()
         {
@@ -80,6 +88,69 @@ namespace tas
             if (joyR[0] != 0 || joyR[1] != 0) return 0;
             for (int i = 0; i < 16; ++i) if (isPressed[i]) return 0;
             return 1;
+        }
+
+        void inputSeq::appendLines(int cnt)
+        {
+            while (cnt-- > 0) push_back(frameInputMsg());
+        }
+
+        void inputSeq::deleteLines(std::vector<int> idx)
+        {
+            for (int j = idx.size() - 1; j >= 0; --j)
+            {
+                int i = idx[j];
+                erase(begin() + i);
+            }
+        }
+
+        void inputSeq::insertLines(std::vector<int> idx)
+        {
+            for (int j = idx.size() - 1; j >= 0; --j)
+            {
+                int i = idx[j];
+                insert(begin() + i, frameInputMsg());
+            }
+        }
+
+        void inputSeq::duplicateLines(std::vector<int> idx)
+        {
+            for (int j = idx.size() - 1; j >= 0;)
+            {
+                int r = idx[j];
+                int l = r;
+                while (1)
+                {
+                    --j;
+                    if (j >= 0 && idx[j] == l - 1) --l;
+                    else break;
+                };
+                for (int i = r; i >= l; --i)
+                {
+                    insert(begin() + l, (begin() + r)->clone());
+                }
+            }
+        }
+
+        void inputSeq::loadFromFile(std::string filename)
+        {
+            std::ifstream file((std::string("scripts/") + std::string(filename).c_str()));
+            if (!file.is_open())
+            {
+                std::cerr << "Error: cannot open " << filename << std::endl;
+            }
+            else
+            {
+                clear();
+                std::string line;
+                while (std::getline(file, line))
+                {
+                    tas::script::frameInputMsg msg;
+                    int cur_frame = msg.loadNxTasStr(line);
+                    appendLines(cur_frame - size());
+                    push_back(msg);
+                }
+            }
         }
 
         const char* const proper[16] =
@@ -123,108 +194,36 @@ namespace tas
             {"DDOWN", 1 << 15}
         };
 
-        std::vector<frameInputMsg> editorInputSeq;
-        std::vector<frameInputMsg> runInputSeq;
-        int frameToRun = 0;
+        inputSeq run_input_seq;
+        int frame_to_run = 0;
 
         void mainLoop()
         {
-            assert(frameToRun >= 0);
-            std::cout << runInputSeq.size() << std::endl;
-            if (!runInputSeq.empty())
+            if (!run_input_seq.empty())
             {
-                if (frameToRun >= runInputSeq.size())
+                if (frame_to_run >= run_input_seq.size())
                 {
                     // end, reset
-                    runInputSeq.clear();
-                    frameToRun = 0;
+                    run_input_seq.clear();
+                    frame_to_run = 0;
                     transmit::sendCommand("resetControllerState");
                 }
                 else
                 {
-                    console::log("running frame " + std::to_string(frameToRun));
-                    while (!console::log_items.empty() && console::log_items.back() == "#adv") console::log_items.pop_back();
-                    int prevSize = console::log_items.size();
-                    transmit::sendCommand(runInputSeq[frameToRun++].getSysStr());
+                    console::log("running frame " + std::to_string(frame_to_run));
+                    while (!console::log_items.empty() && console::log_items.back() == "switch: advance") console::log_items.pop_back();
+                    transmit::sendCommand(run_input_seq[frame_to_run++].getSysStr());
                     transmit::sendCommand("advance");
-                    while (console::log_items.size() == prevSize || console::log_items.back() != "#adv"); // wait
+                    while (console::log_items.empty() || console::log_items.back().find("advance") == std::string::npos); // wait
                     console::log_items.pop_back();
                 }
             }
         }
 
-
-        void loadFromFile(std::string filename, std::vector<frameInputMsg>& tar)
+        void run(inputSeq& m_input_seq)
         {
-            std::ifstream file((std::string("scripts/") + std::string(filename).c_str()));
-            if (!file.is_open())
-            {
-                std::cerr << "Error: cannot open " << filename << std::endl;
-            }
-            else
-            {
-                tar.clear();
-                std::string line;
-                while (std::getline(file, line))
-                {
-                    tas::script::frameInputMsg msg;
-                    int cur_frame = msg.loadNxTasStr(line);
-                    appendLines(editorInputSeq, cur_frame - editorInputSeq.size());
-                    tar.push_back(msg);
-                }
-            }
-        }
-
-        void insertLines(std::vector<frameInputMsg>& cur)
-        {
-            // insert above all selected
-            for (int i = 0; i < cur.size(); ++i)
-            {
-                if (cur[i].isSelected)
-                {
-                    cur.insert(cur.begin() + i, frameInputMsg());
-                    ++i;
-                }
-            }
-        }
-
-        void appendLines(std::vector<frameInputMsg>& cur, int cnt)
-        {
-            while (cnt-- > 0) cur.push_back(frameInputMsg());
-        }
-
-        void deleteLines(std::vector<frameInputMsg>& cur)
-        {
-            for (int i = 0; i < cur.size();)
-            {
-                if (cur[i].isSelected) cur.erase(cur.begin() + i);
-                else ++i;
-            }
-        }
-
-        void duplicateLines(std::vector<frameInputMsg>& cur)
-        {
-            for (int i = cur.size() - 1; i >= 0; --i)
-            {
-                if (cur[i].isSelected)
-                {
-                    int j = i - 1;
-                    for (; j >= 0 && cur[j].isSelected; --j);
-                    ++j;
-                    for (int cnt = i; cnt >= j; --cnt)
-                    {
-                        cur.insert(cur.begin() + j, cur[i]);
-                        cur[j].isSelected = 0;
-                    }
-                    i = j;
-                }
-            }
-        }
-
-        void run(std::vector<frameInputMsg>& m_inputSeq)
-        {
-            runInputSeq = m_inputSeq;
-            frameToRun = 0;
+            run_input_seq = m_input_seq;
+            frame_to_run = 0;
         }
 
         void runFile(std::string filename)
@@ -236,10 +235,18 @@ namespace tas
             }
             else
             {
-                std::vector<frameInputMsg> cur;
-                loadFromFile(filename, cur);
+                inputSeq cur;
+                cur.loadFromFile(filename);
                 run(cur);
             }
+        }
+
+        void runCancel()
+        {
+            run_input_seq.clear();
+            frame_to_run = 0;
+            transmit::sendCommand("resetControllerState");
+            transmit::sendCommand("unpause");
         }
     }
 }

@@ -27,7 +27,6 @@ int main(int argc, char* argv[])
     window.setFramerateLimit(60);
     ImGui::SFML::Init(window);
     sf::Clock deltaClock;
-
     
     std::thread log(tas::transmit::log_response, std::ref(tas::console::log_items));
     log.detach();
@@ -86,7 +85,7 @@ int main(int argc, char* argv[])
                         )
                         {
                             // ctrl shift C cancel
-                            tas::script::frameToRun = tas::script::runInputSeq.size();
+                            tas::script::runCancel();
                         }
                         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LAlt) || sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RAlt))
                         {
@@ -134,7 +133,7 @@ int main(int argc, char* argv[])
                         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RControl))
                         {
                             // ctrl T add line
-                            tas::script::appendLines(tas::script::editorInputSeq);
+                            tas::editor::loaded_input_seq.appendLines();
                         }
                         break;
                     }
@@ -143,7 +142,7 @@ int main(int argc, char* argv[])
                         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RControl))
                         {
                             // ctrl I insert line
-                            tas::script::insertLines(tas::script::editorInputSeq);
+                            tas::editor::loaded_input_seq.insertSelected();
                         }
                         break;
                     }
@@ -152,19 +151,19 @@ int main(int argc, char* argv[])
                         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RControl))
                         {
                             // ctrl D duplicate line
-                            tas::script::duplicateLines(tas::script::editorInputSeq);
+                            tas::editor::loaded_input_seq.duplicateSelected();
                         }
                         break;
                     }
                     case sf::Keyboard::Scancode::Delete:
                     {
-                        tas::script::deleteLines(tas::script::editorInputSeq);
+                        tas::editor::loaded_input_seq.deleteSelected();
                         break;
                     }
                     case sf::Keyboard::Scancode::F9:
                     {
                         // F9 run current
-                        tas::script::run(tas::script::editorInputSeq);
+                        tas::script::run(tas::editor::loaded_input_seq);
                         break;
                     }
                     case sf::Keyboard::Scancode::F10:

@@ -1,15 +1,58 @@
 #ifndef TAS_EDITOR_HPP
 #define TAS_EDITOR_HPP
+#include "script.hpp"
+
+#include "imgui.h"
 
 #include <string>
+#include <vector>
+
+#include <iostream>
 
 namespace tas
 {
     namespace editor
     {
+        struct inputSeqWithSelection : public script::inputSeq
+        {
+            ImGuiSelectionBasicStorage selection;
+            ImVector<ImGuiID> items_id;
+            static int _id;
+
+            // inputSeqWithSelection() : script::inputSeq()
+            // {
+            //     selection.UserData = (void*)&items_id;
+            //     selection.AdapterIndexToStorageId = [](ImGuiSelectionBasicStorage* self, int idx)
+            //     {
+            //         ImVector<ImGuiID>* p_items = (ImVector<ImGuiID>*)self->UserData;
+            //         // std::cout << std::endl << p_items->Size << std::endl;
+            //         std::cout << "p: " << (*p_items)[idx] << std::endl;
+            //         return (*p_items)[idx];
+            //     }; // Index -> ID
+            // }
+            
+            bool isSelected(int i);
+            std::vector<int> getSelectedIdx();
+            void appendLines(int cnt = 1) override;
+            void insertSelected();
+            void deleteSelected();
+            void duplicateSelected();
+
+            private:
+            void insertID(std::vector<int> idx);
+            void deleteID(std::vector<int> idx);
+            void duplicateID(std::vector<int> idx);
+        };
+
         extern const int NUM_OF_COLS;
         extern const char* const head[];
-        extern std::string editorFileName;
+        extern std::string editor_file_name;
+        extern inputSeqWithSelection loaded_input_seq;
+
+        // struct loadedFile
+        // {
+        //     std::string name;
+        // };
 
         void mainLoop();
         void saveFile(std::string filename = "");

@@ -35,19 +35,19 @@ namespace tas
                     }
                     if (ImGui::MenuItem("Append Line", "Ctrl+T"))
                     {
-                        script::appendLines(script::editorInputSeq);
+                        editor::loaded_input_seq.appendLines();
                     }
                     if (ImGui::MenuItem("Insert Line(s)", "Ctrl+I"))
                     {
-                        script::insertLines(script::editorInputSeq);
+                        editor::loaded_input_seq.insertSelected();
                     }
                     if (ImGui::MenuItem("Delete Line(s)", "Delete"))
                     {
-                        script::deleteLines(script::editorInputSeq);
+                        editor::loaded_input_seq.deleteSelected();
                     }
                     if (ImGui::MenuItem("Duplicate Line(s)", "Ctrl+D"))
                     {
-                        script::duplicateLines(script::editorInputSeq);
+                        editor::loaded_input_seq.duplicateSelected();
                     }
                     ImGui::EndMenu();
                 }
@@ -71,7 +71,7 @@ namespace tas
                     }
                     if (ImGui::MenuItem("Run Current", "F9"))
                     {
-                        tas::script::run(tas::script::editorInputSeq);
+                        tas::script::run(tas::editor::loaded_input_seq);
                     }
                     if (ImGui::MenuItem("Run File", "F10"))
                     {
@@ -79,7 +79,7 @@ namespace tas
                     }
                     if (ImGui::MenuItem("Cancel Run", "Ctrl+Shift+C"))
                     {
-                        script::frameToRun = script::runInputSeq.size();
+                        script::runCancel();
                     }
                     ImGui::EndMenu();
                 }

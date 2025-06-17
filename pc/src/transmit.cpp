@@ -13,8 +13,27 @@ namespace tas
             char cur[128] = {0};
             while (1)
             {
-                recv(sockfd, cur, 128, 0);
-                if (cur[0]) log_items.push_back(cur);
+                int len = 0;
+                while (1)
+                {
+                    int recvBytes = recv(sockfd, cur + len, 128, 0);
+                    if (recvBytes == -1)
+                    {
+                        // TODO
+                    }
+                    else
+                    {
+                        len += recvBytes;
+                        if (cur[len - 1] == '\n')
+                        {
+                            cur[len - 1] = '\0';
+                            len = 0;
+                            break;
+                        }
+                    }
+                }
+                
+                if (cur[0]) log_items.push_back("switch: " + std::string(cur));
                 // std::cout << cur << std::endl;
             }
         }
@@ -47,6 +66,7 @@ namespace tas
                 return 0;
             }
             std::cout << "Connected" << std::endl;
+            sendCommand("configure echoCommands 1");
             connected = 1;
             return 1;
         }

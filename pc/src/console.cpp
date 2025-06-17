@@ -59,10 +59,13 @@ namespace tas
                 }
                 else if (argv[0] == "run")
                 {
-                    if (argv[1] == "current") script::run(script::editorInputSeq);
+                    if (argv[1] == "current") script::run(editor::loaded_input_seq);
                     else script::runFile(argv[1]);
                 }
-                
+                else if (argv[0] == "clear")
+                {
+                    log_items.clear();
+                }
                 else
                 {
                     transmit::sendCommand(str);

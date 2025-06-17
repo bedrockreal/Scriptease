@@ -1,5 +1,4 @@
 #include "editor.hpp"
-#include "script.hpp"
 #include "common.hpp"
 #include "menu.hpp"
 
@@ -34,48 +33,129 @@ namespace tas
             ">\0",
             "v\0"
         };
-        std::string editorFileName = "";
+        std::string editor_file_name = "";
+        inputSeqWithSelection loaded_input_seq;
+        int inputSeqWithSelection::_id = 0;
+
+        inline bool inputSeqWithSelection::isSelected(int i)
+        {
+            return selection.Contains(items_id[i]);
+        }
+
+        std::vector<int> inputSeqWithSelection::getSelectedIdx()
+        {
+            std::vector<int> ret;
+            for (int i = 0; i < size(); ++i)
+                if (selection.Contains(items_id[i])) ret.push_back(i);
+            std::cout << ret.size() << std::endl;
+            for (int i : ret) std::cout << i << ' '; std::cout << std::endl;
+            return ret;
+        }
+
+        void inputSeqWithSelection::appendLines(int cnt)
+        {
+            while (cnt-- > 0)
+            {
+                items_id.push_back(_id++);
+                push_back(script::frameInputMsg());
+            }
+        }
+
+        void inputSeqWithSelection::insertSelected()
+        {
+            auto idx = getSelectedIdx();
+            insertID(idx);
+            insertLines(idx);
+        }
+        void inputSeqWithSelection::duplicateSelected()
+        {
+            auto idx = getSelectedIdx();
+            duplicateID(idx);
+            duplicateLines(idx);
+        }
+        void inputSeqWithSelection::deleteSelected()
+        {
+            auto idx = getSelectedIdx();
+            selection.Clear();
+            deleteID(idx);
+            deleteLines(idx);
+        }
+
+        void inputSeqWithSelection::insertID(std::vector<int> idx)
+        {
+            for (int j = idx.size() - 1; j >= 0; --j)
+            {
+                int i = idx[j];
+                items_id.insert(items_id.begin() + i, _id++);
+            }
+        }
+
+        void inputSeqWithSelection::deleteID(std::vector<int> idx)
+        {
+            for (int j = idx.size() - 1; j >= 0; --j)
+            {
+                int i = idx[j];
+                items_id.erase(items_id.begin() + i);
+            }
+        }
+
+        void inputSeqWithSelection::duplicateID(std::vector<int> idx)
+        {
+            for (int j = idx.size() - 1; j >= 0;)
+            {
+                int r = idx[j];
+                int l = r;
+                while (1)
+                {
+                    --j;
+                    if (j >= 0 && idx[j] == l - 1) --l;
+                    else break;
+                };
+                for (int i = r; i >= l; --i)
+                {
+                    items_id.insert(items_id.begin() + l, _id++);
+                }
+            }
+        }
 
         void mainLoop()
         {
             ImGui::SetNextWindowSize(sf::Vector2u(CONSOLE_WINDOW_POS.x - EDITOR_WINDOW_POS.x, MASTER_WINDOW_SIZE.y - EDITOR_WINDOW_POS.y));
             ImGui::SetNextWindowPos(EDITOR_WINDOW_POS);
             char title[64];
-            sprintf(title, "TAS Editor: %s", editorFileName.empty() ? "Untitled" : editorFileName.c_str());
+            sprintf(title, "TAS Editor: %s", editor_file_name.empty() ? "Untitled" : editor_file_name.c_str());
             if (ImGui::Begin(title, &windowOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
             {
-                if (ImGui::BeginTable("table", tas::editor::NUM_OF_COLS, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollY))
+                if (ImGui::BeginTable("table", NUM_OF_COLS, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollY))
                 {
-                    for (int j = 0; j < tas::editor::NUM_OF_COLS; ++j)
+                    for (int j = 0; j < editor::NUM_OF_COLS; ++j)
                     {
-                        ImGui::TableSetupColumn(tas::editor::head[j], ImGuiTableColumnFlags_None, strlen(tas::editor::head[j]) * (j >= 1 && j <= 2 ? 20 : 10));
+                        ImGui::TableSetupColumn(head[j], ImGuiTableColumnFlags_None, strlen(head[j]) * (j >= 1 && j <= 2 ? 20 : 10));
                     }
                     ImGui::TableSetupScrollFreeze(0, 1);
                     ImGui::TableHeadersRow();
 
-                    for (int i = 0; i < tas::script::editorInputSeq.size(); ++i)
+                    ImGuiMultiSelectIO* ms_io = ImGui::BeginMultiSelect(ImGuiMultiSelectFlags_BoxSelect1d, loaded_input_seq.selection.Size, loaded_input_seq.size());
+
+                    for (int i = 0; i < editor::loaded_input_seq.size(); ++i)
                     {
                         char label[32];
                         sprintf(label, "%d", i);
                         ImGui::TableNextRow();
                         ImGui::TableNextColumn();
-                        if (ImGui::Selectable(label, script::editorInputSeq[i].isSelected))
-                        {
-                            if (!(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RControl)))
-                            {
-                                for (int j = 0; j < tas::script::editorInputSeq.size(); ++j) script::editorInputSeq[j].isSelected = 0;
-                            }
-                            script::editorInputSeq[i].isSelected ^= 1;
-                        }
+                        ImGui::SetNextItemSelectionUserData(loaded_input_seq.items_id[i]);
+                        ImGui::Selectable(label, loaded_input_seq.isSelected(i), ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
                         
-                        sprintf(label, "##%dL", i); ImGui::TableNextColumn(); ImGui::InputInt2(label, tas::script::editorInputSeq[i].joyL);
-                        sprintf(label, "##%dR", i); ImGui::TableNextColumn(); ImGui::InputInt2(label, tas::script::editorInputSeq[i].joyR);
-                        for (int j = 0; j < tas::editor::NUM_OF_COLS - 3; ++j)
+                        sprintf(label, "##%dL", i); ImGui::TableNextColumn(); ImGui::InputInt2(label, editor::loaded_input_seq[i].joyL);
+                        sprintf(label, "##%dR", i); ImGui::TableNextColumn(); ImGui::InputInt2(label, editor::loaded_input_seq[i].joyR);
+                        for (int j = 0; j < NUM_OF_COLS - 3; ++j)
                         {
                             sprintf(label, "##%d;%d", i, j);
-                            ImGui::TableNextColumn(); ImGui::Checkbox(label, &tas::script::editorInputSeq[i].isPressed[j]);
+                            ImGui::TableNextColumn(); ImGui::Checkbox(label, &editor::loaded_input_seq[i].isPressed[j]);
                         }
                     }
+                    ms_io = ImGui::EndMultiSelect();
+                    loaded_input_seq.selection.ApplyRequests(ms_io);
                     ImGui::EndTable();
                 }
             } ImGui::End();
@@ -83,7 +163,7 @@ namespace tas
 
         void saveFile(std::string filename)
         {
-            if (tas::script::editorInputSeq.empty())
+            if (tas::editor::loaded_input_seq.empty())
             {
                 // Show msg
                 return;
@@ -96,12 +176,12 @@ namespace tas
             else
             {
                 std::ofstream file((std::string("scripts/") + std::string(filename).c_str()));
-                for (int i = 0; i < tas::script::editorInputSeq.size(); ++i) if (!tas::script::editorInputSeq[i].isIdle())
+                for (int i = 0; i < tas::editor::loaded_input_seq.size(); ++i) if (!tas::editor::loaded_input_seq[i].isIdle())
                 {
-                    std::string line = std::to_string(i) + " " + tas::script::editorInputSeq[i].getNxTasStr() + "\n";
+                    std::string line = std::to_string(i) + " " + tas::editor::loaded_input_seq[i].getNxTasStr() + "\n";
                     file.write(line.c_str(), line.length());
                 }
-                editorFileName = filename;
+                editor_file_name = filename;
             }
         }
 
@@ -114,8 +194,8 @@ namespace tas
             }
             else
             {
-                script::loadFromFile(filename, script::editorInputSeq);
-                editorFileName = filename;
+                editor::loaded_input_seq.loadFromFile(filename);
+                editor_file_name = filename;
             }
         }
     } // namespace editor

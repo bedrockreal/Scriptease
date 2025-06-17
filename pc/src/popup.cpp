@@ -33,7 +33,7 @@ namespace tas
                     if (ImGui::InputText("Enter File Name", buf, 64, ImGuiInputTextFlags_EnterReturnsTrue))
                     {
                         showSaveFileWindow_Flag = false;
-                        if (buf[0] == 0) editor::saveFile(editor::editorFileName);
+                        if (buf[0] == 0) editor::saveFile(editor::editor_file_name);
                         else editor::saveFile(buf);
                     }
                     ImGui::End();
