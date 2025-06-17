@@ -32,7 +32,7 @@ namespace tas
             void insertLines(std::vector<int> idx);
             void deleteLines(std::vector<int> idx);
             void duplicateLines(std::vector<int> idx);
-            void loadFromFile(std::string filename);
+            virtual void loadFromFile(std::string filename);
         };
 
         extern const char* const proper[16];

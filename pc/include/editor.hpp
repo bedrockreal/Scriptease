@@ -17,7 +17,6 @@ namespace tas
         {
             ImGuiSelectionBasicStorage selection;
             ImVector<ImGuiID> items_id;
-            static int _id;
 
             // inputSeqWithSelection() : script::inputSeq()
             // {
@@ -33,12 +32,15 @@ namespace tas
             
             bool isSelected(int i);
             std::vector<int> getSelectedIdx();
+            void loadFromFile(std::string filename = "") override;
             void appendLines(int cnt = 1) override;
             void insertSelected();
             void deleteSelected();
             void duplicateSelected();
+            void syncID();
 
             private:
+            static int _id;
             void insertID(std::vector<int> idx);
             void deleteID(std::vector<int> idx);
             void duplicateID(std::vector<int> idx);

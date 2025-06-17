@@ -6,6 +6,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <numeric>
 
 namespace tas
 {
@@ -52,6 +53,12 @@ namespace tas
             return ret;
         }
 
+        void inputSeqWithSelection::loadFromFile(std::string filename)
+        {
+            inputSeq::loadFromFile(filename);
+            syncID();
+        }
+
         void inputSeqWithSelection::appendLines(int cnt)
         {
             while (cnt-- > 0)
@@ -79,6 +86,12 @@ namespace tas
             selection.Clear();
             deleteID(idx);
             deleteLines(idx);
+        }
+
+        void inputSeqWithSelection::syncID()
+        {
+            while (items_id.size() > size()) items_id.pop_back();
+            while (items_id.size() < size()) items_id.push_back(_id++);
         }
 
         void inputSeqWithSelection::insertID(std::vector<int> idx)
@@ -194,7 +207,8 @@ namespace tas
             }
             else
             {
-                editor::loaded_input_seq.loadFromFile(filename);
+                loaded_input_seq.loadFromFile(filename);
+                // loaded_input_seq.syncID();
                 editor_file_name = filename;
             }
         }
