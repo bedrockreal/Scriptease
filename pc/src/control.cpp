@@ -108,7 +108,8 @@ namespace tas
 
         void imgui_add_switch_key(const int size, const std::string lbl, const std::string press_cmd, const std::string release_cmd)
         {
-            if (ImGui::Button(lbl.c_str(), ImVec2(size, size)))
+            ImGui::Button(lbl.c_str(), ImVec2(size, size));
+            if (ImGui::IsItemActive())
             {
                 if (keys_pressed.find(lbl) == keys_pressed.end())
                 {
