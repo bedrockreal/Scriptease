@@ -37,6 +37,8 @@ namespace tas
         std::string editor_file_name = "";
         inputSeqWithSelection loaded_input_seq;
         int inputSeqWithSelection::_id = 0;
+        joystick joy_l({0, 0}, 80);
+        joystick joy_r({0, 0}, 80);
 
         inline bool inputSeqWithSelection::isSelected(int i)
         {
@@ -133,17 +135,18 @@ namespace tas
 
         void mainLoop()
         {
-            ImGui::SetNextWindowSize(sf::Vector2u(CONSOLE_WINDOW_POS.x - EDITOR_WINDOW_POS.x, MASTER_WINDOW_SIZE.y - EDITOR_WINDOW_POS.y));
-            ImGui::SetNextWindowPos(EDITOR_WINDOW_POS);
+            ImGui::SetNextWindowSize(EDITOR_PANEL_SIZE);
+            ImGui::SetNextWindowPos(EDITOR_PANEL_POS);
             char title[64];
             sprintf(title, "TAS Editor: %s", editor_file_name.empty() ? "Untitled" : editor_file_name.c_str());
-            if (ImGui::Begin(title, &windowOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
-            {
-                if (ImGui::BeginTable("table", NUM_OF_COLS, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_SizingFixedFit | ImGuiTableFlags_ScrollY))
+            if (ImGui::Begin(title, &window_open, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
+            {   
+                const static ImGuiTableFlags table_flags = ImGuiTableFlags_BordersInner | ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_ScrollY;
+                if (ImGui::BeginTable("table", NUM_OF_COLS, table_flags))
                 {
                     for (int j = 0; j < editor::NUM_OF_COLS; ++j)
                     {
-                        ImGui::TableSetupColumn(head[j], ImGuiTableColumnFlags_None, strlen(head[j]) * (j >= 1 && j <= 2 ? 20 : 10));
+                        ImGui::TableSetupColumn(head[j]);
                     }
                     ImGui::TableSetupScrollFreeze(0, 1);
                     ImGui::TableHeadersRow();
@@ -159,8 +162,13 @@ namespace tas
                         ImGui::SetNextItemSelectionUserData(loaded_input_seq.items_id[i]);
                         ImGui::Selectable(label, loaded_input_seq.isSelected(i), ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
                         
-                        sprintf(label, "##%dL", i); ImGui::TableNextColumn(); ImGui::InputInt2(label, editor::loaded_input_seq[i].joyL);
-                        sprintf(label, "##%dR", i); ImGui::TableNextColumn(); ImGui::InputInt2(label, editor::loaded_input_seq[i].joyR);
+                        sprintf(label, "##%dL", i); ImGui::TableNextColumn(); ImGui::PushItemWidth(-1);
+                        bool edited_stick = 0;
+                        if (ImGui::InputInt2(label, editor::loaded_input_seq[i].joyL)) edited_stick = 1;
+                        sprintf(label, "##%dR", i); ImGui::TableNextColumn(); ImGui::PushItemWidth(-1);
+                        if (ImGui::InputInt2(label, editor::loaded_input_seq[i].joyR)) edited_stick = 1;
+                        if (edited_stick) loaded_input_seq[i].clampJoystickCoords();
+
                         for (int j = 0; j < NUM_OF_COLS - 3; ++j)
                         {
                             sprintf(label, "##%d;%d", i, j);
@@ -169,8 +177,13 @@ namespace tas
                     }
                     ms_io = ImGui::EndMultiSelect();
                     loaded_input_seq.selection.ApplyRequests(ms_io);
+
                     ImGui::EndTable();
                 }
+                // joystick panel
+                ImGui::SameLine();
+                joy_l.setPosition({800, 400});
+                pending_to_draw.push_back(&joy_l);
             } ImGui::End();
         }
 

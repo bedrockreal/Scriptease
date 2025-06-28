@@ -90,6 +90,17 @@ namespace tas
             return 1;
         }
 
+        void frameInputMsg::clampJoystickCoords()
+        {
+            for (int i = 0; i < 2; ++i)
+            {
+                joyL[i] = std::max(joyL[i], -0x7fff);
+                joyL[i] = std::min(joyL[i], 0x7fff);
+                joyR[i] = std::max(joyR[i], -0x7fff);
+                joyR[i] = std::min(joyR[i], 0x7fff);
+            }
+        }
+
         void inputSeq::appendLines(int cnt)
         {
             while (cnt-- > 0) push_back(frameInputMsg());

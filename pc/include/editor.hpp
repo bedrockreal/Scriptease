@@ -1,6 +1,7 @@
 #ifndef TAS_EDITOR_HPP
 #define TAS_EDITOR_HPP
 #include "script.hpp"
+#include "joystick.hpp"
 
 #include "imgui.h"
 
@@ -18,17 +19,18 @@ namespace tas
             ImGuiSelectionBasicStorage selection;
             ImVector<ImGuiID> items_id;
 
-            // inputSeqWithSelection() : script::inputSeq()
-            // {
-            //     selection.UserData = (void*)&items_id;
-            //     selection.AdapterIndexToStorageId = [](ImGuiSelectionBasicStorage* self, int idx)
-            //     {
-            //         ImVector<ImGuiID>* p_items = (ImVector<ImGuiID>*)self->UserData;
-            //         // std::cout << std::endl << p_items->Size << std::endl;
-            //         std::cout << "p: " << (*p_items)[idx] << std::endl;
-            //         return (*p_items)[idx];
-            //     }; // Index -> ID
-            // }
+            inputSeqWithSelection() : script::inputSeq()
+            {
+                // selection.UserData = (void*)&items_id;
+                // selection.AdapterIndexToStorageId = [](ImGuiSelectionBasicStorage* self, int idx)
+                // {
+                //     ImVector<ImGuiID>* p_items = (ImVector<ImGuiID>*)self->UserData;
+                //     // std::cout << std::endl << p_items->Size << std::endl;
+                //     std::cout << "p: " << (*p_items)[idx] << std::endl;
+                //     return (*p_items)[idx];
+                // }; // Index -> ID
+                appendLines(10);
+            }
             
             bool isSelected(int i);
             std::vector<int> getSelectedIdx();
@@ -50,6 +52,8 @@ namespace tas
         extern const char* const head[];
         extern std::string editor_file_name;
         extern inputSeqWithSelection loaded_input_seq;
+        extern joystick joy_l;
+        extern joystick joy_r;
 
         // struct loadedFile
         // {

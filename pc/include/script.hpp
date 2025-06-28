@@ -24,6 +24,7 @@ namespace tas
             std::string getNxTasStr();
             std::string getSysStr();
             bool isIdle();
+            void clampJoystickCoords();
         };
 
         struct inputSeq : public std::vector<frameInputMsg>
