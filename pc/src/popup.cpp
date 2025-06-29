@@ -12,7 +12,8 @@ namespace tas
         {
             if (showOpenFileWindow_Flag)
             {
-                if (ImGui::Begin("Open File"))
+                ImGui::OpenPopup("Open File");
+                if (ImGui::BeginPopupModal("Open File"))
                 {
                     char buf[64] = {0};
                     ImGui::SetKeyboardFocusHere();
@@ -21,12 +22,13 @@ namespace tas
                         showOpenFileWindow_Flag = false;
                         editor::openFile(buf);
                     }
-                    ImGui::End();
+                    ImGui::EndPopup();
                 }
             }
             if (showSaveFileWindow_Flag)
             {
-                if (ImGui::Begin("Save File"))
+                ImGui::OpenPopup("Save File");
+                if (ImGui::BeginPopupModal("Save File"))
                 {
                     char buf[64] = {0};
                     ImGui::SetKeyboardFocusHere();
@@ -36,12 +38,13 @@ namespace tas
                         if (buf[0] == 0) editor::saveFile(editor::editor_file_name);
                         else editor::saveFile(buf);
                     }
-                    ImGui::End();
+                    ImGui::EndPopup();
                 }
             }
             if (showRunFileWindow_Flag)
             {
-                if (ImGui::Begin("Run File"))
+                ImGui::OpenPopup("Run File");
+                if (ImGui::BeginPopupModal("Run File"))
                 {
                     char buf[64] = {0};
                     ImGui::SetKeyboardFocusHere();
@@ -50,7 +53,7 @@ namespace tas
                         showRunFileWindow_Flag = false;
                         script::runFile(buf);
                     }
-                    ImGui::End();
+                    ImGui::EndPopup();
                 }
             }
         }
