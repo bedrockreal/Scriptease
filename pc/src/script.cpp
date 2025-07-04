@@ -15,8 +15,8 @@ namespace tas
     {
         frameInputMsg::frameInputMsg()
         {
-            joyL[0] = joyL[1] = 0;
-            joyR[0] = joyR[1] = 0;
+            for (int i = 0; i < 2; ++i) for (int j = 0; j < 2; ++j)
+                joy_pos[i][j] = 0;
             std::fill(isPressed, isPressed + 16, 0);
         }
 
@@ -37,9 +37,9 @@ namespace tas
                     }
                 }
                 auto tmp = tas::tokenize(argv[2], ';');
-                joyL[0] = std::stoi(tmp[0]); joyL[1] = std::stoi(tmp[1]);
+                joy_pos[0][0] = std::stoi(tmp[0]); joy_pos[0][1] = std::stoi(tmp[1]);
                 tmp = tas::tokenize(argv[3], ';');
-                joyR[0] = std::stoi(tmp[0]); joyR[1] = std::stoi(tmp[1]);
+                joy_pos[1][0] = std::stoi(tmp[0]); joy_pos[1][1] = std::stoi(tmp[1]);
                 return std::stoi(argv[0]);
             }
             catch(const std::exception& e)
@@ -53,8 +53,8 @@ namespace tas
         frameInputMsg frameInputMsg::clone()
         {
             auto ret = frameInputMsg();
-            memcpy(ret.joyL, joyL, sizeof joyL);
-            memcpy(ret.joyR, joyR, sizeof joyR);
+            memcpy(ret.joy_pos[0], joy_pos[0], sizeof joy_pos[0]);
+            memcpy(ret.joy_pos[1], joy_pos[1], sizeof joy_pos[1]);
             memcpy(ret.isPressed, isPressed, sizeof isPressed);
             return ret;
         }
@@ -68,8 +68,8 @@ namespace tas
                 if (btns == "NONE") btns = "KEY_" + std::string(proper[j]);
                 else btns += ";KEY_" + std::string(proper[j]);
             }
-            return btns + " " + std::to_string(joyL[0]) + ";" + std::to_string(joyL[1])
-                        + " " + std::to_string(joyR[0]) + ";" + std::to_string(joyR[1]);
+            return btns + " " + std::to_string(joy_pos[0][0]) + ";" + std::to_string(joy_pos[0][1])
+                        + " " + std::to_string(joy_pos[1][0]) + ";" + std::to_string(joy_pos[1][1]);
         }
 
         std::string frameInputMsg::getSysStr()
@@ -78,14 +78,14 @@ namespace tas
             for (int i = 0; i < 16; ++i) if (isPressed[i])
                 btnState |= (1 << i);
             return "setControllerState " + std::to_string(btnState)
-                + " " + std::to_string(joyL[0]) + " " + std::to_string(joyL[1])
-                + " " + std::to_string(joyR[0]) + " " + std::to_string(joyR[1]);
+                + " " + std::to_string(joy_pos[0][0]) + " " + std::to_string(joy_pos[0][1])
+                + " " + std::to_string(joy_pos[1][0]) + " " + std::to_string(joy_pos[1][1]);
         }
         
         bool frameInputMsg::isIdle()
         {
-            if (joyL[0] != 0 || joyL[1] != 0) return 0;
-            if (joyR[0] != 0 || joyR[1] != 0) return 0;
+            if (joy_pos[0][0] != 0 || joy_pos[0][1] != 0) return 0;
+            if (joy_pos[1][0] != 0 || joy_pos[1][1] != 0) return 0;
             for (int i = 0; i < 16; ++i) if (isPressed[i]) return 0;
             return 1;
         }
@@ -94,10 +94,10 @@ namespace tas
         {
             for (int i = 0; i < 2; ++i)
             {
-                joyL[i] = std::max(joyL[i], -0x7fff);
-                joyL[i] = std::min(joyL[i], 0x7fff);
-                joyR[i] = std::max(joyR[i], -0x7fff);
-                joyR[i] = std::min(joyR[i], 0x7fff);
+                joy_pos[0][i] = std::max(joy_pos[0][i], -0x7fff);
+                joy_pos[0][i] = std::min(joy_pos[0][i], 0x7fff);
+                joy_pos[1][i] = std::max(joy_pos[1][i], -0x7fff);
+                joy_pos[1][i] = std::min(joy_pos[1][i], 0x7fff);
             }
         }
 

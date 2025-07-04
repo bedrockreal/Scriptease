@@ -14,8 +14,7 @@ namespace tas
     {
         struct frameInputMsg
         {
-            int joyL[2];
-            int joyR[2];
+            int joy_pos[2][2];
             bool isPressed[16];
             frameInputMsg();
             ~frameInputMsg();

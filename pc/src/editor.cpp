@@ -1,6 +1,7 @@
 #include "editor.hpp"
 #include "common.hpp"
 #include "menu.hpp"
+#include "joystick.hpp"
 
 #include "imgui.h"
 
@@ -37,8 +38,7 @@ namespace tas
         std::string editor_file_name = "";
         inputSeqWithSelection loaded_input_seq;
         int inputSeqWithSelection::_id = 0;
-        joystick joy_l({0, 0}, 80);
-        joystick joy_r({0, 0}, 80);
+        static ImVec2 context_popup_joy_pos = ImVec2(0.f, 0.f);
 
         inline bool inputSeqWithSelection::isSelected(int i)
         {
@@ -88,6 +88,30 @@ namespace tas
             selection.Clear();
             deleteID(idx);
             deleteLines(idx);
+        }
+        void inputSeqWithSelection::swapSelectedUp()
+        {
+            syncID();
+            int i = 0;
+            for (; i < size() && !isSelected(i); ++i);
+            if (i == 0) for (; i < size() && isSelected(i); ++i);
+            for (; i < size(); ++i) if (isSelected(i))
+            {
+                std::swap((*this)[i], (*this)[i - 1]);
+                std::swap(items_id[i], items_id[i - 1]);
+            }
+        }
+        void inputSeqWithSelection::swapSelectedDown()
+        {
+            syncID();
+            int i = size() - 1;
+            for (; i >= 0 && !isSelected(i); --i);
+            if (i == size() - 1) for (; i >= 0 && isSelected(i); --i);
+            for (; i >= 0; --i) if (isSelected(i))
+            {
+                std::swap((*this)[i], (*this)[i + 1]);
+                std::swap(items_id[i], items_id[i + 1]);
+            }
         }
 
         void inputSeqWithSelection::syncID()
@@ -144,7 +168,7 @@ namespace tas
                 const static ImGuiTableFlags table_flags = ImGuiTableFlags_BordersInner | ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_ScrollY;
                 if (ImGui::BeginTable("table", NUM_OF_COLS, table_flags))
                 {
-                    for (int j = 0; j < editor::NUM_OF_COLS; ++j)
+                    for (int j = 0; j < NUM_OF_COLS; ++j)
                     {
                         ImGui::TableSetupColumn(head[j]);
                     }
@@ -153,7 +177,7 @@ namespace tas
 
                     ImGuiMultiSelectIO* ms_io = ImGui::BeginMultiSelect(ImGuiMultiSelectFlags_BoxSelect1d, loaded_input_seq.selection.Size, loaded_input_seq.size());
 
-                    for (int i = 0; i < editor::loaded_input_seq.size(); ++i)
+                    for (int i = 0; i < loaded_input_seq.size(); ++i)
                     {
                         char label[32];
                         sprintf(label, "%d", i);
@@ -161,35 +185,47 @@ namespace tas
                         ImGui::TableNextColumn();
                         ImGui::SetNextItemSelectionUserData(loaded_input_seq.items_id[i]);
                         ImGui::Selectable(label, loaded_input_seq.isSelected(i), ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap);
-                        
-                        sprintf(label, "##%dL", i); ImGui::TableNextColumn(); ImGui::PushItemWidth(-1);
+
                         bool edited_stick = 0;
-                        if (ImGui::InputInt2(label, editor::loaded_input_seq[i].joyL)) edited_stick = 1;
-                        sprintf(label, "##%dR", i); ImGui::TableNextColumn(); ImGui::PushItemWidth(-1);
-                        if (ImGui::InputInt2(label, editor::loaded_input_seq[i].joyR)) edited_stick = 1;
+                        for (int dir = 0; dir < 2; ++dir)
+                        {
+                            sprintf(label, "##%djoy%d", i, dir);
+                            ImGui::TableNextColumn(); ImGui::PushItemWidth(-1);
+                            if (ImGui::InputInt2(label, loaded_input_seq[i].joy_pos[dir])) edited_stick = 1;
+                            ImGui::SameLine();
+                            sprintf(label, "##%dstick%d", i, dir);
+
+                            if (ImGui::BeginPopupContextItem(label))
+                            {
+                                context_popup_joy_pos.x = loaded_input_seq[i].joy_pos[dir][0] / (float)MAX_JOY_COORD_ABS;
+                                context_popup_joy_pos.y = -loaded_input_seq[i].joy_pos[dir][1] / (float)MAX_JOY_COORD_ABS;
+                                ImGui::JoystickSlider(context_popup_joy_pos);
+                                loaded_input_seq[i].joy_pos[dir][0] = context_popup_joy_pos.x * MAX_JOY_COORD_ABS;
+                                loaded_input_seq[i].joy_pos[dir][1] = -context_popup_joy_pos.y * MAX_JOY_COORD_ABS;
+                                // std::cout << context_popup_joy_pos.x << ' ' << context_popup_joy_pos.y << std::endl;
+                                ImGui::EndPopup();
+                            }
+                        }
                         if (edited_stick) loaded_input_seq[i].clampJoystickCoords();
 
                         for (int j = 0; j < NUM_OF_COLS - 3; ++j)
                         {
                             sprintf(label, "##%d;%d", i, j);
-                            ImGui::TableNextColumn(); ImGui::Checkbox(label, &editor::loaded_input_seq[i].isPressed[j]);
+                            ImGui::TableNextColumn(); ImGui::Checkbox(label, &loaded_input_seq[i].isPressed[j]);
                         }
                     }
+
                     ms_io = ImGui::EndMultiSelect();
                     loaded_input_seq.selection.ApplyRequests(ms_io);
 
                     ImGui::EndTable();
                 }
-                // joystick panel
-                ImGui::SameLine();
-                joy_l.setPosition({800, 400});
-                pending_to_draw.push_back(&joy_l);
             } ImGui::End();
         }
 
         void saveFile(std::string filename)
         {
-            if (tas::editor::loaded_input_seq.empty())
+            if (loaded_input_seq.empty())
             {
                 // Show msg
                 return;
@@ -202,9 +238,9 @@ namespace tas
             else
             {
                 std::ofstream file((std::string("scripts/") + std::string(filename).c_str()));
-                for (int i = 0; i < tas::editor::loaded_input_seq.size(); ++i) if (!tas::editor::loaded_input_seq[i].isIdle())
+                for (int i = 0; i < loaded_input_seq.size(); ++i) if (!loaded_input_seq[i].isIdle())
                 {
-                    std::string line = std::to_string(i) + " " + tas::editor::loaded_input_seq[i].getNxTasStr() + "\n";
+                    std::string line = std::to_string(i) + " " + loaded_input_seq[i].getNxTasStr() + "\n";
                     file.write(line.c_str(), line.length());
                 }
                 editor_file_name = filename;
@@ -225,5 +261,8 @@ namespace tas
                 editor_file_name = filename;
             }
         }
+
+        void saveFileNoArgs() { saveFile(""); }
+        void openFileNoArgs() { openFile(""); }
     } // namespace editor
 } // namespace tas

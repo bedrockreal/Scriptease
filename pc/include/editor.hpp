@@ -1,7 +1,6 @@
 #ifndef TAS_EDITOR_HPP
 #define TAS_EDITOR_HPP
 #include "script.hpp"
-#include "joystick.hpp"
 
 #include "imgui.h"
 
@@ -18,6 +17,7 @@ namespace tas
         {
             ImGuiSelectionBasicStorage selection;
             ImVector<ImGuiID> items_id;
+            static ImVec2 context_popup_joy_pos;
 
             inputSeqWithSelection() : script::inputSeq()
             {
@@ -39,6 +39,8 @@ namespace tas
             void insertSelected();
             void deleteSelected();
             void duplicateSelected();
+            void swapSelectedUp();
+            void swapSelectedDown();
             void syncID();
 
             private:
@@ -46,14 +48,15 @@ namespace tas
             void insertID(std::vector<int> idx);
             void deleteID(std::vector<int> idx);
             void duplicateID(std::vector<int> idx);
+            // void swapIDUp(std::vector<int> idx);
+            // void swapIDDown(std::vector<int> idx);
         };
 
         extern const int NUM_OF_COLS;
         extern const char* const head[];
         extern std::string editor_file_name;
         extern inputSeqWithSelection loaded_input_seq;
-        extern joystick joy_l;
-        extern joystick joy_r;
+        constexpr static int MAX_JOY_COORD_ABS = 0x7FFF;
 
         // struct loadedFile
         // {
@@ -61,6 +64,8 @@ namespace tas
         // };
 
         void mainLoop();
+        void saveFileNoArgs();
+        void openFileNoArgs();
         void saveFile(std::string filename = "");
         void openFile(std::string filename = "");
     } // namespace editor

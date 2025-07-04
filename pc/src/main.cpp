@@ -5,6 +5,7 @@
 #include <cerrno>
 #include <unordered_set>
 #include <thread>
+#include <functional>
 
 #include <SFML/Graphics.hpp>
 #include "imgui.h"
@@ -20,10 +21,39 @@
 #include "script.hpp"
 #include "popup.hpp"
 
+sf::RenderWindow window(sf::VideoMode(MASTER_WINDOW_SIZE), "Scriptease 0.1.0");
+std::vector<sf::Drawable*> pending_to_draw;
+
+// struct shortcut
+// {
+//     sf::Keyboard::Scancode final_press;
+//     std::vector<sf::Keyboard::Scancode> hold;
+//     // std::function<void()> *callback;
+//     void (*callback)();
+
+//     shortcut(sf::Keyboard::Scancode m_final_press, std::vector<sf::Keyboard::Scancode> m_hold, void (*m_callback)())
+//     {
+//         final_press = m_final_press;
+//         hold = m_hold;
+//         callback = m_callback;
+//     }
+// };
+
+// const shortcut shortcuts[] =
+// {
+//     shortcut(sf::Keyboard::Scancode::O, {sf::Keyboard::Scancode::LControl}, &tas::editor::openFileNoArgs),
+//     shortcut(sf::Keyboard::Scancode::S, {sf::Keyboard::Scancode::LControl}, &tas::editor::saveFileNoArgs),
+//     shortcut(sf::Keyboard::Scancode::T, {sf::Keyboard::Scancode::LControl}, &tas::editor::inputSeqWithSelection::appendLines),
+//     shortcut(sf::Keyboard::Scancode::I, {sf::Keyboard::Scancode::LControl}, &tas::editor::inputSeqWithSelection::insertSelected),
+//     shortcut(sf::Keyboard::Scancode::Delete, {}, &tas::editor::inputSeqWithSelection::deleteSelected),
+//     shortcut(sf::Keyboard::Scancode::D, {sf::Keyboard::Scancode::LControl}, &tas::editor::inputSeqWithSelection::duplicateSelected),
+//     shortcut(sf::Keyboard::Scancode::Up, {}, &tas::editor::inputSeqWithSelection::swapSelectedUp),
+//     shortcut(sf::Keyboard::Scancode::Down, {}, &tas::editor::inputSeqWithSelection::swapSelectedDown),
+// };
+
 int main(int argc, char* argv[])
 {
     // start of GUI
-    sf::RenderWindow window(sf::VideoMode(MASTER_WINDOW_SIZE), "Scriptease 0.1.0");
     window.setFramerateLimit(60);
     ImGui::SFML::Init(window);
     sf::Clock deltaClock;
@@ -31,6 +61,7 @@ int main(int argc, char* argv[])
     std::thread log(tas::transmit::log_response, std::ref(tas::console::log_items));
     log.detach();
 
+    window.resetGLStates();
     while (window.isOpen()) {
         while (const auto event = window.pollEvent()) {
             ImGui::SFML::ProcessEvent(window, *event);
@@ -181,6 +212,8 @@ int main(int argc, char* argv[])
             }
         }
         ImGui::SFML::Update(window, deltaClock.restart());
+
+        window.clear();
         
         tas::menu::mainLoop();
         tas::control::mainLoop();
@@ -188,10 +221,14 @@ int main(int argc, char* argv[])
         tas::editor::mainLoop();
         tas::script::mainLoop();
         tas::popup::mainLoop();
-
-        window.clear();
         ImGui::SFML::Render(window);
+        
+        for (auto cur_obj : pending_to_draw)
+        {
+            window.draw(*cur_obj);
+        }
         window.display();
+        pending_to_draw.clear();
     }
     ImGui::SFML::Shutdown();
 }

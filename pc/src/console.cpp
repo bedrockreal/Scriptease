@@ -23,9 +23,9 @@ namespace tas
         }
         void mainLoop()
         {
-            ImGui::SetNextWindowSize(MASTER_WINDOW_SIZE - CONSOLE_WINDOW_POS);
-            ImGui::SetNextWindowPos(CONSOLE_WINDOW_POS);
-            if (ImGui::Begin("Console", &windowOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
+            ImGui::SetNextWindowSize(MASTER_WINDOW_SIZE - CONSOLE_PANEL_POS);
+            ImGui::SetNextWindowPos(CONSOLE_PANEL_POS);
+            if (ImGui::Begin("Console", &window_open, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
             {
                 const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
                 if (ImGui::BeginChild("log", ImVec2(0, -footer_height_to_reserve)))

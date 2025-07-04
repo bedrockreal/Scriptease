@@ -11,9 +11,9 @@ namespace tas
         std::unordered_set<std::string> keys_pressed;
         void mainLoop()
         {
-            ImGui::SetNextWindowSize(sf::Vector2u(CONTROL_WINDOW_SIZE, CONTROL_WINDOW_SIZE));
-            ImGui::SetNextWindowPos(CONTROL_WINDOW_POS + sf::Vector2u(0, 0));
-            if (ImGui::Begin("Main Buttons", &windowOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
+            ImGui::SetNextWindowSize(sf::Vector2u(CONTROL_PANEL_SIZE, CONTROL_PANEL_SIZE));
+            ImGui::SetNextWindowPos(CONTROL_PANEL_POS + sf::Vector2u(0, 0));
+            if (ImGui::Begin("Main Buttons", &window_open, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
             {
                 imgui_add_switch_key(MAIN_BUTTON_SIZE, "A", "press A", "release A");
                 ImGui::SameLine();
@@ -38,9 +38,9 @@ namespace tas
                 imgui_add_switch_key(MAIN_BUTTON_SIZE, "CAP", "press CAPTURE", "release CAPTURE");
             } ImGui::End();
 
-            ImGui::SetNextWindowSize(sf::Vector2u(CONTROL_WINDOW_SIZE, CONTROL_WINDOW_SIZE));
-            ImGui::SetNextWindowPos(CONTROL_WINDOW_POS + sf::Vector2u(CONTROL_WINDOW_SIZE, 0));
-            if (ImGui::Begin("D-Pad", &windowOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
+            ImGui::SetNextWindowSize(sf::Vector2u(CONTROL_PANEL_SIZE, CONTROL_PANEL_SIZE));
+            ImGui::SetNextWindowPos(CONTROL_PANEL_POS + sf::Vector2u(CONTROL_PANEL_SIZE, 0));
+            if (ImGui::Begin("D-Pad", &window_open, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
             {
                 ImGui::Columns(3, "dpadcol", false);
                 ImGui::NextColumn();
@@ -59,9 +59,9 @@ namespace tas
                 imgui_add_switch_key(DIR_BUTTON_SIZE, "v##D", "press DDOWN", "release DDOWN");
             } ImGui::End();
 
-            ImGui::SetNextWindowSize(sf::Vector2u(CONTROL_WINDOW_SIZE, CONTROL_WINDOW_SIZE));
-            ImGui::SetNextWindowPos(CONTROL_WINDOW_POS + sf::Vector2u(0, CONTROL_WINDOW_SIZE));
-            if (ImGui::Begin("Left Joystick", &windowOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
+            ImGui::SetNextWindowSize(sf::Vector2u(CONTROL_PANEL_SIZE, CONTROL_PANEL_SIZE));
+            ImGui::SetNextWindowPos(CONTROL_PANEL_POS + sf::Vector2u(0, CONTROL_PANEL_SIZE));
+            if (ImGui::Begin("Left Joystick", &window_open, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
             {
                 ImGui::Columns(3, "lstickcol", false);
                 ImGui::NextColumn();
@@ -82,9 +82,9 @@ namespace tas
                 imgui_add_switch_key(DIR_BUTTON_SIZE, "v##L", "setStick LEFT 0 -0x7FFF", "setStick LEFT 0 0");
             } ImGui::End();
 
-            ImGui::SetNextWindowSize(sf::Vector2u(CONTROL_WINDOW_SIZE, CONTROL_WINDOW_SIZE));
-            ImGui::SetNextWindowPos(CONTROL_WINDOW_POS + sf::Vector2u(CONTROL_WINDOW_SIZE, CONTROL_WINDOW_SIZE));
-            if (ImGui::Begin("Right Joystick", &windowOpen, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
+            ImGui::SetNextWindowSize(sf::Vector2u(CONTROL_PANEL_SIZE, CONTROL_PANEL_SIZE));
+            ImGui::SetNextWindowPos(CONTROL_PANEL_POS + sf::Vector2u(CONTROL_PANEL_SIZE, CONTROL_PANEL_SIZE));
+            if (ImGui::Begin("Right Joystick", &window_open, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
             {
                 ImGui::Columns(3, "rstickcol", false);
                 ImGui::NextColumn();

@@ -2,7 +2,7 @@
 
 namespace tas
 {
-    bool windowOpen                 = true;
+    bool window_open                 = true;
     bool showSaveFileWindow_Flag    = false;
     bool showOpenFileWindow_Flag    = false;
     bool showRunFileWindow_Flag     = false;

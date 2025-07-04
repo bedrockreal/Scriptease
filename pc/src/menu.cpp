@@ -49,6 +49,14 @@ namespace tas
                     {
                         editor::loaded_input_seq.duplicateSelected();
                     }
+                    if (ImGui::MenuItem("Swap Line(s) Up", "UP"))
+                    {
+                        editor::loaded_input_seq.swapSelectedUp();
+                    }
+                    if (ImGui::MenuItem("Swap Line(s) Down", "DOWN"))
+                    {
+                        editor::loaded_input_seq.swapSelectedDown();
+                    }
                     ImGui::EndMenu();
                 }
                 if (ImGui::BeginMenu("Options"))
