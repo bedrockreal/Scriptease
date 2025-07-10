@@ -1,2 +1,4 @@
 /pc/build/
 /pc/scripts/*
+/pc/src/imgui/imgui_demo.cpp
+/pc/tas-script

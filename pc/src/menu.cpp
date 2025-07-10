@@ -61,13 +61,26 @@ namespace tas
                 }
                 if (ImGui::BeginMenu("Options"))
                 {
-                    if (ImGui::MenuItem("Connect", "Alt+C"))
+                    // if (ImGui::MenuItem("Connect", "Alt+C"))
+                    // {
+                    //     transmit::setUpConnection("192.168.86.211", 6000);
+                    // }
+                    if (ImGui::BeginMenu("Connect"))
                     {
-                        transmit::setUpConnection("192.168.86.211", 6000);
+                        char addr[32] = "192.168.86.228\0";
+                        int port = 6000;
+                        ImGui::InputText("Address", addr, 32, ImGuiInputTextFlags_CharsDecimal);
+                        ImGui::InputInt("Port", &port, 1, 100);
+                        if (ImGui::Button("Confirm"))
+                        {
+                            transmit::setUpConnection(addr, port);
+                        }
+                        ImGui::EndMenu();
                     }
+
                     if (ImGui::MenuItem("Pause", "Ctrl+Shift+P"))
                     {
-                        transmit::sendCommand("pause");
+                        transmit::sendCommand("attach()");
                     }
                     if (ImGui::MenuItem("Unpause", "Ctrl+Shift+U"))
                     {
@@ -75,7 +88,7 @@ namespace tas
                     }
                     if (ImGui::MenuItem("Advance 1F", "Ctrl+Shift+SPACE"))
                     {
-                        tas::transmit::sendCommand("advance");
+                        tas::transmit::sendCommand("advanceFrames(1)");
                     }
                     if (ImGui::MenuItem("Run Current", "F9"))
                     {

@@ -38,7 +38,8 @@ namespace tas
         std::string editor_file_name = "";
         inputSeqWithSelection loaded_input_seq;
         int inputSeqWithSelection::_id = 0;
-        static ImVec2 context_popup_joy_pos = ImVec2(0.f, 0.f);
+        static ImVec2 popup_joy_pos = ImVec2(0.f, 0.f);
+        static bool popup_joy_clicked = 0;
 
         inline bool inputSeqWithSelection::isSelected(int i)
         {
@@ -159,11 +160,11 @@ namespace tas
 
         void mainLoop()
         {
-            ImGui::SetNextWindowSize(EDITOR_PANEL_SIZE);
-            ImGui::SetNextWindowPos(EDITOR_PANEL_POS);
+            // ImGui::SetNextWindowSize(EDITOR_PANEL_SIZE);
+            // ImGui::SetNextWindowPos(EDITOR_PANEL_POS);
             char title[64];
             sprintf(title, "TAS Editor: %s", editor_file_name.empty() ? "Untitled" : editor_file_name.c_str());
-            if (ImGui::Begin(title, &window_open, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
+            if (ImGui::BeginTabItem(title))
             {   
                 const static ImGuiTableFlags table_flags = ImGuiTableFlags_BordersInner | ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_ScrollY;
                 if (ImGui::BeginTable("table", NUM_OF_COLS, table_flags))
@@ -197,12 +198,12 @@ namespace tas
 
                             if (ImGui::BeginPopupContextItem(label))
                             {
-                                context_popup_joy_pos.x = loaded_input_seq[i].joy_pos[dir][0] / (float)MAX_JOY_COORD_ABS;
-                                context_popup_joy_pos.y = -loaded_input_seq[i].joy_pos[dir][1] / (float)MAX_JOY_COORD_ABS;
-                                ImGui::JoystickSlider(context_popup_joy_pos);
-                                loaded_input_seq[i].joy_pos[dir][0] = context_popup_joy_pos.x * MAX_JOY_COORD_ABS;
-                                loaded_input_seq[i].joy_pos[dir][1] = -context_popup_joy_pos.y * MAX_JOY_COORD_ABS;
-                                // std::cout << context_popup_joy_pos.x << ' ' << context_popup_joy_pos.y << std::endl;
+                                popup_joy_pos.x = loaded_input_seq[i].joy_pos[dir][0] / (float)MAX_JOY_COORD_ABS;
+                                popup_joy_pos.y = -loaded_input_seq[i].joy_pos[dir][1] / (float)MAX_JOY_COORD_ABS;
+                                ImGui::JoystickSlider(popup_joy_pos, popup_joy_clicked);
+                                loaded_input_seq[i].joy_pos[dir][0] = popup_joy_pos.x * MAX_JOY_COORD_ABS;
+                                loaded_input_seq[i].joy_pos[dir][1] = -popup_joy_pos.y * MAX_JOY_COORD_ABS;
+                                // std::cout << popup_joy_pos.x << ' ' << popup_joy_pos.y << std::endl;
                                 ImGui::EndPopup();
                             }
                         }
@@ -220,7 +221,9 @@ namespace tas
 
                     ImGui::EndTable();
                 }
-            } ImGui::End();
+
+                ImGui::EndTabItem();
+            }
         }
 
         void saveFile(std::string filename)

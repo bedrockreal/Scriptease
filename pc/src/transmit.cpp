@@ -1,5 +1,12 @@
 #include "transmit.hpp"
 
+#include <iostream>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+
+#include <errno.h>
+#include <string.h>
+
 namespace tas
 {
     namespace transmit
@@ -33,17 +40,23 @@ namespace tas
                     }
                 }
                 
-                if (cur[0]) log_items.push_back("switch: " + std::string(cur));
+                if (cur[0]) log_items.push_back(std::string(cur));
                 // std::cout << cur << std::endl;
             }
         }
 
         void sendCommand(std::string cmd)
         {
-            send(sockfd, (cmd + "\r\n").c_str(), cmd.length() + 2, 0);
+            std::cout << cmd << std::endl;
+            int ret = send(sockfd, (cmd + "\r\n").c_str(), cmd.length() + 2, MSG_NOSIGNAL);
+            // if (ret == -1)
+            // {
+            //     std::cout << "a" << std::endl;
+            //     if (errno == EPIPE) return;
+            // }
         }
 
-        bool setUpConnection(std::string ip, int port)
+        bool setUpConnection(const char* ip, int port)
         {
             sockfd = socket(AF_INET, SOCK_STREAM, 0);
             if (sockfd == -1)
@@ -51,22 +64,21 @@ namespace tas
                 std::cout << "could not create TCP listening socket" << std::endl;
                 return 0;
             }
-            
+
             sockaddr_in serv_addr;
             serv_addr.sin_family = AF_INET;
             serv_addr.sin_port = htons(port);
-            int status = inet_pton(AF_INET, ip.c_str(), &serv_addr.sin_addr);
+            int status = inet_pton(AF_INET, ip, &serv_addr.sin_addr);
             if (status <= 0)
             {
                 perror("Invalid address/ Address not supported \n");
                 return 0;
             }
             if ((status = connect(sockfd, (sockaddr*)&serv_addr, sizeof(serv_addr))) < 0) {
-                printf("\nConnection Failed \n");
+                printf("\nConnection Failed: %d (%s) \n", errno, strerror(errno));
                 return 0;
             }
             std::cout << "Connected" << std::endl;
-            sendCommand("configure echoCommands 1");
             connected = 1;
             return 1;
         }

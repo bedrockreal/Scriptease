@@ -17,7 +17,8 @@ namespace tas
         {
             ImGuiSelectionBasicStorage selection;
             ImVector<ImGuiID> items_id;
-            static ImVec2 context_popup_joy_pos;
+            static ImVec2 popup_joy_pos;
+            static bool popup_joy_clicked;
 
             inputSeqWithSelection() : script::inputSeq()
             {
@@ -56,7 +57,6 @@ namespace tas
         extern const char* const head[];
         extern std::string editor_file_name;
         extern inputSeqWithSelection loaded_input_seq;
-        constexpr static int MAX_JOY_COORD_ABS = 0x7FFF;
 
         // struct loadedFile
         // {

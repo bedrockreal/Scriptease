@@ -23,9 +23,7 @@ namespace tas
         }
         void mainLoop()
         {
-            ImGui::SetNextWindowSize(MASTER_WINDOW_SIZE - CONSOLE_PANEL_POS);
-            ImGui::SetNextWindowPos(CONSOLE_PANEL_POS);
-            if (ImGui::Begin("Console", &window_open, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
+            if (ImGui::BeginTabItem("Console"))
             {
                 const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
                 if (ImGui::BeginChild("log", ImVec2(0, -footer_height_to_reserve)))
@@ -41,7 +39,9 @@ namespace tas
                     input[0] = '\0';
                 }
                 else focusHere = false;
-            } ImGui::End();
+
+                ImGui::EndTabItem();
+            }
         }
 
         void parse(std::string str)

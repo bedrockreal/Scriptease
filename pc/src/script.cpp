@@ -217,15 +217,15 @@ namespace tas
                     // end, reset
                     run_input_seq.clear();
                     frame_to_run = 0;
-                    transmit::sendCommand("resetControllerState");
+                    transmit::sendCommand("resetControllerState()");
                 }
                 else
                 {
                     console::log("running frame " + std::to_string(frame_to_run));
                     while (!console::log_items.empty() && console::log_items.back() == "switch: advance") console::log_items.pop_back();
                     transmit::sendCommand(run_input_seq[frame_to_run++].getSysStr());
-                    transmit::sendCommand("advance");
-                    while (console::log_items.empty() || console::log_items.back().find("advance") == std::string::npos); // wait
+                    transmit::sendCommand("advanceFrames(1)");
+                    while (console::log_items.empty() || console::log_items.back().find("advanceFrames(1)") == std::string::npos); // wait
                     console::log_items.pop_back();
                 }
             }
@@ -256,8 +256,8 @@ namespace tas
         {
             run_input_seq.clear();
             frame_to_run = 0;
-            transmit::sendCommand("resetControllerState");
-            transmit::sendCommand("unpause");
+            transmit::sendCommand("resetControllerState()");
+            transmit::sendCommand("detach()");
         }
     }
 }

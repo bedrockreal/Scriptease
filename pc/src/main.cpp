@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
                         )
                         {
                             // ctrl shift p pause
-                            tas::transmit::sendCommand("pause");
+                            tas::transmit::sendCommand("attach()");
                         }
                         break;
                     }
@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
                         )
                         {
                             // ctrl shift u  unpause
-                            tas::transmit::sendCommand("unpause");
+                            tas::transmit::sendCommand("detach()");
                         }
                         break;
                     }
@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
                         )
                         {
                             // ctrl shift space advance
-                            tas::transmit::sendCommand("advance");
+                            tas::transmit::sendCommand("advanceFrames(1)");
                         }
                         break;
                     }
@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
                         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LAlt) || sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RAlt))
                         {
                             // Alt C connect
-                            tas::transmit::setUpConnection("192.168.86.211", 6000);
+                            tas::transmit::setUpConnection("192.168.86.228", 6000);
                         }
                         break;
                     }
@@ -216,11 +216,22 @@ int main(int argc, char* argv[])
         window.clear();
         
         tas::menu::mainLoop();
-        tas::control::mainLoop();
-        tas::console::mainLoop();
-        tas::editor::mainLoop();
-        tas::script::mainLoop();
-        tas::popup::mainLoop();
+
+        ImGui::SetNextWindowPos(sf::Vector2u(0, LINE_HEIGHT));
+        ImGui::SetNextWindowSize(MASTER_WINDOW_SIZE - sf::Vector2u(2 * CONTROL_PANEL_SIZE, LINE_HEIGHT));
+        if (ImGui::Begin("master", &window_open, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
+        {
+            if (ImGui::BeginTabBar("tabbar"))
+            {
+                tas::editor::mainLoop();
+                tas::console::mainLoop();
+                ImGui::EndTabBar();
+            }
+
+            tas::control::mainLoop();
+            tas::script::mainLoop();
+            tas::popup::mainLoop();
+        } ImGui::End();
         ImGui::SFML::Render(window);
         
         for (auto cur_obj : pending_to_draw)

@@ -21,12 +21,14 @@
 #define DIR_BUTTON_SIZE     52
 #define MAX_LOG_ENTRIES     100
 
+#define MAX_JOY_COORD_ABS   0x7FFF
+
 // extern sf::RenderWindow window;
+static bool window_open = true;
 extern std::vector<sf::Drawable*> pending_to_draw;
 
 namespace tas
 {
-    extern bool window_open;
     extern bool showSaveFileWindow_Flag;
     extern bool showOpenFileWindow_Flag;
     extern bool showRunFileWindow_Flag;
