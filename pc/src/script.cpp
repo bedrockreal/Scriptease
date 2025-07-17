@@ -205,58 +205,9 @@ namespace tas
             {"DDOWN", 1 << 15}
         };
 
-        inputSeq run_input_seq;
-        int frame_to_run = 0;
-
-        void mainLoop()
-        {
-            if (!run_input_seq.empty())
-            {
-                if (frame_to_run >= run_input_seq.size())
-                {
-                    // end, reset
-                    run_input_seq.clear();
-                    frame_to_run = 0;
-                    transmit::sendCommand("resetControllerState()");
-                }
-                else
-                {
-                    console::log("running frame " + std::to_string(frame_to_run));
-                    while (!console::log_items.empty() && console::log_items.back() == "switch: advance") console::log_items.pop_back();
-                    transmit::sendCommand(run_input_seq[frame_to_run++].getSysStr());
-                    transmit::sendCommand("advanceFrames(1)");
-                    while (console::log_items.empty() || console::log_items.back().find("advanceFrames(1)") == std::string::npos); // wait
-                    console::log_items.pop_back();
-                }
-            }
-        }
-
-        void run(inputSeq& m_input_seq)
-        {
-            run_input_seq = m_input_seq;
-            frame_to_run = 0;
-        }
-
-        void runFile(std::string filename)
-        {
-            if (filename.empty())
-            {
-                // Show pop-up
-                showRunFileWindow_Flag = true;
-            }
-            else
-            {
-                inputSeq cur;
-                cur.loadFromFile(filename);
-                run(cur);
-            }
-        }
-
         void runCancel()
         {
-            run_input_seq.clear();
-            frame_to_run = 0;
-            transmit::sendCommand("resetControllerState()");
+            transmit::sendCommand("cancelTAS()");
             transmit::sendCommand("detach()");
         }
     }

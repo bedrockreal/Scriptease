@@ -66,7 +66,7 @@ namespace tas
                 imgui_add_switch_key(DIR_BUTTON_SIZE, "v##D", "press(KEY_DDOWN)", "release(KEY_DDOWN)");
             } ImGui::End();
 
-            ImGui::SetNextWindowSize(sf::Vector2u(2 * CONTROL_PANEL_SIZE, CONTROL_PANEL_SIZE));
+            ImGui::SetNextWindowSize(sf::Vector2u(2 * CONTROL_PANEL_SIZE + 40, CONTROL_PANEL_SIZE + 40));
             ImGui::SetNextWindowPos(CONTROL_PANEL_POS + sf::Vector2u(0, CONTROL_PANEL_SIZE));
             if (ImGui::Begin("Joysticks"))
             {

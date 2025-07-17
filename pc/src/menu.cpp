@@ -2,6 +2,7 @@
 #include "transmit.hpp"
 #include "editor.hpp"
 #include "script.hpp"
+#include "common.hpp"
 
 namespace tas
 {
@@ -13,13 +14,17 @@ namespace tas
             {
                 if (ImGui::BeginMenu("File"))
                 {
+                    if (ImGui::MenuItem("New", "Ctrl+N"))
+                    {
+                        // pass
+                    }
                     if (ImGui::MenuItem("Open", "Ctrl+O"))
                     {
-                        tas::editor::openFile();
+                        tas::editor::openFileNoArgs();
                     }
                     if (ImGui::MenuItem("Save", "Ctrl+S"))
                     {
-                        tas::editor::saveFile();
+                        tas::editor::saveFileNoArgs();
                     }
                     ImGui::EndMenu();
                 }
@@ -61,42 +66,22 @@ namespace tas
                 }
                 if (ImGui::BeginMenu("Options"))
                 {
-                    // if (ImGui::MenuItem("Connect", "Alt+C"))
-                    // {
-                    //     transmit::setUpConnection("192.168.86.211", 6000);
-                    // }
-                    if (ImGui::BeginMenu("Connect"))
+                    if (ImGui::MenuItem("Connect", "Alt+C"))
                     {
-                        char addr[32] = "192.168.86.228\0";
-                        int port = 6000;
-                        ImGui::InputText("Address", addr, 32, ImGuiInputTextFlags_CharsDecimal);
-                        ImGui::InputInt("Port", &port, 1, 100);
-                        if (ImGui::Button("Confirm"))
-                        {
-                            transmit::setUpConnection(addr, port);
-                        }
+                        showInputIPWindow_Flag = true;
                         ImGui::EndMenu();
                     }
-
                     if (ImGui::MenuItem("Pause", "Ctrl+Shift+P"))
                     {
                         transmit::sendCommand("attach()");
                     }
                     if (ImGui::MenuItem("Unpause", "Ctrl+Shift+U"))
                     {
-                        transmit::sendCommand("Unpause");
+                        transmit::sendCommand("detach()");
                     }
                     if (ImGui::MenuItem("Advance 1F", "Ctrl+Shift+SPACE"))
                     {
-                        tas::transmit::sendCommand("advanceFrames(1)");
-                    }
-                    if (ImGui::MenuItem("Run Current", "F9"))
-                    {
-                        tas::script::run(tas::editor::loaded_input_seq);
-                    }
-                    if (ImGui::MenuItem("Run File", "F10"))
-                    {
-                        tas::script::runFile();
+                        tas::transmit::sendCommand("advTAS(1)");
                     }
                     if (ImGui::MenuItem("Cancel Run", "Ctrl+Shift+C"))
                     {

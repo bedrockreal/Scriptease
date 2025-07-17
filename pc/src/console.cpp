@@ -53,15 +53,6 @@ namespace tas
                 {
                     editor::openFile(argv[1].c_str());
                 }
-                else if (argv[0] == "sleep")
-                {
-                    usleep(std::stof(argv[1]) * 1000);
-                }
-                else if (argv[0] == "run")
-                {
-                    if (argv[1] == "current") script::run(editor::loaded_input_seq);
-                    else script::runFile(argv[1]);
-                }
                 else if (argv[0] == "clear")
                 {
                     log_items.clear();

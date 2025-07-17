@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
                         )
                         {
                             // ctrl shift space advance
-                            tas::transmit::sendCommand("advanceFrames(1)");
+                            tas::transmit::sendCommand("advTAS(1)");
                         }
                         break;
                     }
@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
                         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LAlt) || sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RAlt))
                         {
                             // Alt C connect
-                            tas::transmit::setUpConnection("192.168.86.228", 6000);
+                            tas::showInputIPWindow_Flag = 1;
                         }
                         break;
                     }
@@ -146,7 +146,7 @@ int main(int argc, char* argv[])
                         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RControl))
                         {
                             // ctrl s save
-                            tas::editor::saveFile();
+                            tas::editor::saveFileNoArgs();
                         }
                         break;
                     }
@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
                         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::LControl) || sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::RControl))
                         {
                             // ctrl o open file
-                            tas::editor::openFile();
+                            tas::editor::openFileNoArgs();
                         }
                         break;
                     }
@@ -191,18 +191,6 @@ int main(int argc, char* argv[])
                         tas::editor::loaded_input_seq.deleteSelected();
                         break;
                     }
-                    case sf::Keyboard::Scancode::F9:
-                    {
-                        // F9 run current
-                        tas::script::run(tas::editor::loaded_input_seq);
-                        break;
-                    }
-                    case sf::Keyboard::Scancode::F10:
-                    {
-                        // F10 run file
-                        tas::script::runFile();
-                        break;
-                    }
                     case sf::Keyboard::Scancode::Escape:
                     {
                         // Esc clear popup windows
@@ -229,7 +217,6 @@ int main(int argc, char* argv[])
             }
 
             tas::control::mainLoop();
-            tas::script::mainLoop();
             tas::popup::mainLoop();
         } ImGui::End();
         ImGui::SFML::Render(window);

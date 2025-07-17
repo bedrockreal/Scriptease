@@ -8,7 +8,7 @@
 
 #define LINE_HEIGHT                 ImGui::GetTextLineHeightWithSpacing()
 
-#define MASTER_WINDOW_SIZE          sf::Vector2u(1310, 820)
+#define MASTER_WINDOW_SIZE          sf::Vector2u(1400, 820)
 #define CONTROL_PANEL_SIZE          200
 #define EDITOR_PANEL_SIZE           sf::Vector2u(CONSOLE_PANEL_POS.x - EDITOR_PANEL_POS.x, MASTER_WINDOW_SIZE.y - EDITOR_PANEL_POS.y)
 #define EDITOR_TABLE_SIZE           sf::Vector2u(700, EDITOR_PANEL_SIZE.y - LINE_HEIGHT)
@@ -32,6 +32,7 @@ namespace tas
     extern bool showSaveFileWindow_Flag;
     extern bool showOpenFileWindow_Flag;
     extern bool showRunFileWindow_Flag;
+    extern bool showInputIPWindow_Flag;
     std::vector<std::string> tokenize(std::string input, char delim);
     void clearFlags();
 } // namespace tas

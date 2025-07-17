@@ -37,11 +37,7 @@ namespace tas
 
         extern const char* const proper[16];
         extern const std::unordered_map<std::string, int> translate_keys;
-        extern inputSeq run_input_seq;
-        extern int frame_to_run;
-        void mainLoop();
-        void run(inputSeq& m_input_seq);
-        void runFile(std::string filename = "");
+
         void runCancel();
     }
 } // namespace tas

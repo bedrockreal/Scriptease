@@ -66,8 +66,8 @@ namespace tas
         void mainLoop();
         void saveFileNoArgs();
         void openFileNoArgs();
-        void saveFile(std::string filename = "");
-        void openFile(std::string filename = "");
+        void saveFile(std::string filename);
+        void openFile(std::string filename);
     } // namespace editor
     
 } // namespace tas

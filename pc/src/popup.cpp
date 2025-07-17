@@ -1,6 +1,7 @@
 #include "editor.hpp"
 #include "script.hpp"
 #include "common.hpp"
+#include "transmit.hpp"
 
 #include "imgui.h"
 
@@ -41,17 +42,19 @@ namespace tas
                     ImGui::EndPopup();
                 }
             }
-            if (showRunFileWindow_Flag)
+
+            if (showInputIPWindow_Flag)
             {
-                ImGui::OpenPopup("Run File");
-                if (ImGui::BeginPopupModal("Run File"))
+                char ip[32] = "192.168.86.234\0";
+                int port = 6000;
+                ImGui::OpenPopup("Connect to Switch");
+                if (ImGui::BeginPopupModal("Connect to Switch"))
                 {
-                    char buf[64] = {0};
-                    ImGui::SetKeyboardFocusHere();
-                    if (ImGui::InputText("Enter File Name", buf, 64, ImGuiInputTextFlags_EnterReturnsTrue))
+                    ImGui::InputText("Address", ip, 32, ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_EnterReturnsTrue);
+                    ImGui::InputInt("Port", &port, 1, 100);
+                    if (ImGui::IsKeyPressed(ImGuiKey_Enter))
                     {
-                        showRunFileWindow_Flag = false;
-                        script::runFile(buf);
+                        if (transmit::setUpConnection(ip, port)) showInputIPWindow_Flag = false;
                     }
                     ImGui::EndPopup();
                 }
